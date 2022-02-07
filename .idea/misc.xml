@@ -10,6 +10,8 @@
         <option value="$PROJECT_DIR$/gulimall-order/pom.xml" />
         <option value="$PROJECT_DIR$/gulimall-coupon/pom.xml" />
         <option value="$PROJECT_DIR$/gulimall-member/pom.xml" />
+        <option value="$PROJECT_DIR$/renren-fast/pom.xml" />
+        <option value="$PROJECT_DIR$/renren-generator/pom.xml" />
       </list>
     </option>
   </component>
