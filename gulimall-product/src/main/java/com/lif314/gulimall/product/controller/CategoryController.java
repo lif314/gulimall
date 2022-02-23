@@ -79,6 +79,18 @@ public class CategoryController {
     }
 
     /**
+     * 修改拖拽后的节点顺序
+     */
+    @RequestMapping("/update/sort")
+    //@RequiresPermissions("product:category:update")
+    public R updateSort(@RequestBody CategoryEntity[] category){
+        // TODO: 暂时不测试该功能
+        // 收集数据，按照id进行更新，只更新对应字段的内容
+        categoryService.updateBatchById(Arrays.asList(category));
+        return R.ok();
+    }
+
+    /**
      * 删除
      *
      * RequestBody获取请求体，只有post可以发送请求体
