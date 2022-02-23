@@ -13,6 +13,7 @@
         <module name="gulimall-order" />
         <module name="gulimall-ware" />
         <module name="gulimall-member" />
+        <module name="gulimall-gateway" />
         <module name="gulimall-product" />
         <module name="renren-generator" />
       </profile>
@@ -21,6 +22,7 @@
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="gulimall-coupon" options="-parameters" />
+      <module name="gulimall-gateway" options="-parameters" />
       <module name="gulimall-member" options="-parameters" />
       <module name="gulimall-order" options="-parameters" />
       <module name="gulimall-product" options="-parameters" />

@@ -21,5 +21,5 @@ mybatis-plus:
       # 主键自增
       id-type: auto
 server:
-  port: 5000
+  port: 8500
 
