@@ -9,10 +9,14 @@ spring:
     nacos:
       discovery:
         server-addr: 121.36.229.15:8848
+    alicloud:
+      access-key: LTAI5tFgyxgqZfKTDbgVWJbd
+      secret-key: TYXFVknpv3RhLFcf2Cel3OdspRs6bX
+      oss:
+        endpoint: https://oss-cn-shanghai.aliyuncs.com
   # 模块名
   application:
     name: gulimall-product
-
 
 # sql映射文件位置
 mybatis-plus:

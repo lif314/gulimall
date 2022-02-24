@@ -8,6 +8,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="gulimall-coupon" />
+        <module name="gulimall-third-party" />
         <module name="gulimall-common" />
         <module name="renren-fast" />
         <module name="gulimall-order" />
@@ -26,6 +27,7 @@
       <module name="gulimall-member" options="-parameters" />
       <module name="gulimall-order" options="-parameters" />
       <module name="gulimall-product" options="-parameters" />
+      <module name="gulimall-third-party" options="-parameters" />
       <module name="gulimall-ware" options="-parameters" />
       <module name="renren-fast" options="-parameters" />
       <module name="renren-generator" options="-parameters" />
