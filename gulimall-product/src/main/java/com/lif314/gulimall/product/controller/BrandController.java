@@ -5,8 +5,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.lif314.common.valid.AddGroup;
+import com.lif314.common.valid.UpdateGroup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -48,6 +51,7 @@ public class BrandController {
 
     /**
      * 信息
+     *
      */
     @RequestMapping("/info/{brandId}")
     //@RequiresPermissions("product:brand:info")
@@ -60,28 +64,31 @@ public class BrandController {
     /**
      * 保存
      * @param brand 请求体 Post
-     * @param validateResult 校验结果
+//     * @param validateResult 校验结果
      * @return 统一消息提示
      */
     @RequestMapping("/save")
    // @RequiresPermissions("product:brand:save")
-    public R save(@Valid @RequestBody BrandEntity brand, BindingResult validateResult){
-		if(validateResult.hasErrors()) {
-            Map<String, String> map = new HashMap<>();
-            // 获取校验的错误结果
-            validateResult.getFieldErrors().forEach((item) -> {
-                // 获取所有的错误结果
-                // 获取@NotBlank中写的message
-                String message = item.getDefaultMessage();
-                // 获取错误属性的名字
-                String field = item.getField();
-                map.put(field, message);
-            });
-            return R.error(400, "提交数据不合法").put("data", map);
-        }else{
-            brandService.save(brand);
-            return R.ok();
-        }
+    public R save(@Validated(AddGroup.class) @RequestBody BrandEntity brand /*, BindingResult validateResult*/){
+
+//		if(validateResult.hasErrors()) {
+//            Map<String, String> map = new HashMap<>();
+//            // 获取校验的错误结果
+//            validateResult.getFieldErrors().forEach((item) -> {
+//                // 获取所有的错误结果
+//                // 获取@NotBlank中写的message
+//                String message = item.getDefaultMessage();
+//                // 获取错误属性的名字
+//                String field = item.getField();
+////                System.out.println(field + ":" + message);
+//                map.put(field, message);
+//            });
+//            return R.error(400, "提交数据不合法").put("data", map);
+//        }
+
+        brandService.save(brand);
+        return R.ok();
+
     }
 
     /**
@@ -89,7 +96,7 @@ public class BrandController {
      */
     @RequestMapping("/update")
     //@RequiresPermissions("product:brand:update")
-    public R update(@RequestBody BrandEntity brand){
+    public R update(@Validated(UpdateGroup.class) @RequestBody BrandEntity brand){
 		brandService.updateById(brand);
 
         return R.ok();
