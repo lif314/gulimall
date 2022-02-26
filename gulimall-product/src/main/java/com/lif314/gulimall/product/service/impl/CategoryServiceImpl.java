@@ -3,6 +3,7 @@ package com.lif314.gulimall.product.service.impl;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -76,9 +77,23 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     @Override
     public Long[] findCatelogPath(Long catelogId) {
         List<Long> paths = new ArrayList<>();
+        List<Long> parentPath = findParentPath(catelogId, paths);
+        // 逆序转换
+        Collections.reverse(paths);
+        return parentPath.toArray(new Long[parentPath.size()]);
+    }
 
-
-        return (Long[]) paths.toArray();
+    // 递归查询并收集路径信息 225,25,2
+    private List<Long> findParentPath(Long catelogId, List<Long> paths ){
+        // 获取当前分类的id
+        paths.add(catelogId);
+        CategoryEntity byId = this.getById(catelogId);
+        // 如果存在父分类，则需要递归查询
+        if(byId.getParentCid()!=0){
+            //递归查找父节点
+            findParentPath(byId.getParentCid(), paths);
+        }
+        return paths;
     }
 
     /**
