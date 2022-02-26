@@ -1,21 +1,16 @@
 package com.lif314.gulimall.product.controller;
 
-import java.util.Arrays;
-import java.util.Map;
-
-//import org.apache.shiro.authz.annotation.RequiresPermissions;
-import com.lif314.gulimall.product.vo.AttrVo;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.lif314.gulimall.product.entity.AttrEntity;
-import com.lif314.gulimall.product.service.AttrService;
 import com.lif314.common.utils.PageUtils;
 import com.lif314.common.utils.R;
+import com.lif314.gulimall.product.entity.AttrEntity;
+import com.lif314.gulimall.product.service.AttrService;
+import com.lif314.gulimall.product.vo.AttrRespVo;
+import com.lif314.gulimall.product.vo.AttrVo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
+import java.util.Map;
 
 
 
@@ -45,24 +40,35 @@ public class AttrController {
 
 
     /**
-     * 获取分类规格参数
+     * 一个方法当两个用
+     *
+     * 获取分类规格参数：/product/attr/base/list/{catelogId}
+     *
+     * 获取分类的所有销售属性：/product/attr/sale/list/{catelogId}
+     *
+     * attrType: 1-基本属性   0-销售属性  路径变量
      */
-    @RequestMapping("/base/list/{catelogId}")
+
+    @RequestMapping("/{attrType}/list/{catelogId}")
     // @RequiresPermissions("product:attr:list")
-    public R baseAttrList(@RequestParam Map<String, Object> params,@PathVariable("catelogId") Long catelogId){
-        PageUtils page  = attrService.queryBaseAttrPage(params, catelogId);
+    public R baseAttrList(@RequestParam Map<String, Object> params,
+                          @PathVariable("catelogId") Long catelogId,
+                          @PathVariable("attrType") String attrType){
+        PageUtils page  = attrService.queryBaseAttrPage(params, catelogId, attrType);
         return R.ok().put("page", page);
     }
 
     /**
      * 信息
+     *
      */
     @RequestMapping("/info/{attrId}")
     //@RequiresPermissions("product:attr:info")
     public R info(@PathVariable("attrId") Long attrId){
-		AttrEntity attr = attrService.getById(attrId);
 
-        return R.ok().put("attr", attr);
+        AttrRespVo respVo = attrService.getAttrInfo(attrId);
+
+        return R.ok().put("attr", respVo);
     }
 
     /**
@@ -82,9 +88,8 @@ public class AttrController {
      */
     @RequestMapping("/update")
     //@RequiresPermissions("product:attr:update")
-    public R update(@RequestBody AttrEntity attr){
-		attrService.updateById(attr);
-
+    public R update(@RequestBody AttrVo attrVo){
+		attrService.updateAttr(attrVo);
         return R.ok();
     }
 
