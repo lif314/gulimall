@@ -3,6 +3,7 @@ package com.lif314.gulimall.product.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.lif314.common.utils.PageUtils;
 import com.lif314.gulimall.product.entity.CategoryBrandRelationEntity;
+import com.lif314.gulimall.product.entity.CategoryEntity;
 
 import java.util.Map;
 
@@ -16,5 +17,11 @@ import java.util.Map;
 public interface CategoryBrandRelationService extends IService<CategoryBrandRelationEntity> {
 
     PageUtils queryPage(Map<String, Object> params);
+
+    void saveDetail(CategoryBrandRelationEntity categoryBrandRelation);
+
+    void updateBrandName(Long brandId, String name);
+
+    void updateCategoryName(Long catId, String name);
 }
 

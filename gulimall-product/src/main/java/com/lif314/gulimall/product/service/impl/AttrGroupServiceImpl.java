@@ -30,7 +30,16 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
 
     @Override
     public PageUtils queryPage(Map<String, Object> params, Long catelogId) {
-        //如果没有选中三级分类，则查询指定的数据，id传0
+        // 查询条件
+        String key = (String) params.get("key");
+        QueryWrapper<AttrGroupEntity> wrapper = new QueryWrapper<AttrGroupEntity>();
+        if(!StringUtils.isEmpty(key)){
+            wrapper.and((obj)->{
+                obj.eq("attr_group_id", key).or().like("attr_group_name", key);
+            });
+        }
+
+        // id为0，查询所有
         if(catelogId == 0){
             /**
              * Query里面就有个方法getPage()，传入map，将map解析为mybatis-plus的IPage对象
@@ -42,25 +51,13 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
              */
             IPage<AttrGroupEntity> page = this.page(
                     new Query<AttrGroupEntity>().getPage(params),
-                    new QueryWrapper<AttrGroupEntity>()
+                    wrapper
             );
             // 返回分类数据
             return new PageUtils(page);
         }else{
-            /**
-             * 按照三级分类数据查询
-             *
-             * 前端会返回key，作为检索条件：如果key不是空的，则要使用key或者id进行查询
-             * select * from pms_attr_group where catelog_id=? and (attr_group_id=key or attr_group_name like %key%)
-             */
-            String key = (String) params.get("key");
-            QueryWrapper<AttrGroupEntity> wrapper = new QueryWrapper<AttrGroupEntity>().eq("catelog_id", catelogId);
-            if(!StringUtils.isEmpty(key)){
-                wrapper.and((obj)->{
-                    obj.eq("attr_group_id", key).or().like("attr_group_name", key);
-                });
-            }
-
+            // 只有不是全部查询时才考虑id
+            wrapper.eq("catelog_id", catelogId);
             IPage<AttrGroupEntity> page = this.page(
                     new Query<AttrGroupEntity>().getPage(params)
                     , wrapper);

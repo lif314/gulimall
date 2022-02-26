@@ -1,5 +1,8 @@
 package com.lif314.gulimall.product.service.impl;
 
+import com.lif314.gulimall.product.service.CategoryBrandRelationService;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -25,6 +28,9 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     // 注入dao来查询数据库表 -- 也可以使用泛型
 //    @Autowired
 //    CategoryDao categoryDao;
+
+    @Autowired
+    CategoryBrandRelationService categoryBrandRelationService;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -81,6 +87,20 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         // 逆序转换
         Collections.reverse(paths);
         return parentPath.toArray(new Long[parentPath.size()]);
+    }
+
+    /**
+     * 级联更新
+     */
+    @Override
+    public void updateCascade(CategoryEntity category) {
+        this.updateById(category);
+        //级联更新
+        if(!StringUtils.isEmpty(category.getName())){
+            categoryBrandRelationService.updateCategoryName(category.getCatId(), category.getName());
+
+            // TODO:级联更新
+        }
     }
 
     // 递归查询并收集路径信息 225,25,2
