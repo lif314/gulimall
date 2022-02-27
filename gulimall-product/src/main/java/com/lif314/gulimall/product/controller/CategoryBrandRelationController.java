@@ -4,9 +4,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.lif314.gulimall.product.entity.BrandEntity;
+import com.lif314.gulimall.product.vo.BrandVo;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,6 +33,32 @@ import com.lif314.common.utils.R;
 public class CategoryBrandRelationController {
     @Autowired
     private CategoryBrandRelationService categoryBrandRelationService;
+
+
+    /**
+     * 获取分类关联的品牌
+     * /product/categorybrandrelation/brands/list
+     *
+     * "brandId": 0,
+     * "brandName": "string",
+     */
+
+    @GetMapping("/brands/list")
+    public R getRelationBrandsList(@RequestParam(value = "catId", required = true) Long catId){
+         List<CategoryBrandRelationEntity> relationEntities = categoryBrandRelationService.getBrandsByCatId(catId);
+//        List<BrandEntity> brandEntities =  categoryBrandRelationService.getBrandsByCatId(catId);
+        // 该方法可能会其它业务使用，所以在service中返回完整数据，在controoler中封装Vo将其返回
+        List<BrandVo> brandVos = relationEntities.stream().map((relationEntity) -> {
+            BrandVo brandVo = new BrandVo();
+//            BeanUtils.copyProperties(brandEntity, brandVo);
+            // 属性名不同，不能对拷
+            brandVo.setBrandId(relationEntity.getBrandId());
+            brandVo.setBrandName(relationEntity.getBrandName());
+            return brandVo;
+        }).collect(Collectors.toList());
+        return R.ok().put("data", brandVos);
+    }
+
 
     /**
      * 列表

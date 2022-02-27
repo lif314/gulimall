@@ -1,7 +1,19 @@
 package com.lif314.gulimall.coupon.service.impl;
 
+import com.lif314.common.to.MemberPrice;
+import com.lif314.common.to.SkuReductionTo;
+import com.lif314.gulimall.coupon.entity.MemberPriceEntity;
+import com.lif314.gulimall.coupon.entity.SkuLadderEntity;
+import com.lif314.gulimall.coupon.service.MemberPriceService;
+import com.lif314.gulimall.coupon.service.SkuLadderService;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -16,6 +28,13 @@ import com.lif314.gulimall.coupon.service.SkuFullReductionService;
 @Service("skuFullReductionService")
 public class SkuFullReductionServiceImpl extends ServiceImpl<SkuFullReductionDao, SkuFullReductionEntity> implements SkuFullReductionService {
 
+    @Autowired
+    SkuLadderService skuLadderService;
+
+    @Autowired
+    MemberPriceService memberPriceService;
+
+
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
         IPage<SkuFullReductionEntity> page = this.page(
@@ -24,6 +43,51 @@ public class SkuFullReductionServiceImpl extends ServiceImpl<SkuFullReductionDao
         );
 
         return new PageUtils(page);
+    }
+
+    /**
+     * 保存满减优惠等信息
+     */
+    @Override
+    public void saveFullReduction(SkuReductionTo skuReductionTo) {
+        //  sku的优惠信息、满减信息 (跨库)
+        /**
+         * gulimall_sms->
+         *   sms_sku_ladder
+         *   sms_sku_full_reductio
+         *   sms_member_price
+         */
+
+        // 保存满减优惠信息
+        SkuLadderEntity skuLadderEntity = new SkuLadderEntity();
+        skuLadderEntity.setSkuId(skuReductionTo.getSkuId());
+        skuLadderEntity.setFullCount(skuReductionTo.getFullCount());
+        skuLadderEntity.setDiscount(skuReductionTo.getDiscount());
+        // 打折状态，是否还有其它优惠
+        skuLadderEntity.setAddOther(skuReductionTo.getCountStatus());
+        skuLadderService.save(skuLadderEntity);
+
+
+        // 保存满减信息
+        SkuFullReductionEntity skuFullReductionEntity = new SkuFullReductionEntity();
+        BeanUtils.copyProperties(skuReductionTo, skuFullReductionEntity);
+        this.save(skuFullReductionEntity);
+
+        // 保存会员价格
+        List<MemberPrice> memberPrice = skuReductionTo.getMemberPrice();
+        List<MemberPriceEntity> priceEntities = memberPrice.stream().map((item) -> {
+            MemberPriceEntity priceEntity = new MemberPriceEntity();
+            priceEntity.setSkuId(skuReductionTo.getSkuId());
+            priceEntity.setMemberLevelId(item.getId());// 会员等级id
+            priceEntity.setMemberLevelName(item.getName());
+            if (item.getPrice() != null) {
+                priceEntity.setMemberPrice(item.getPrice());
+            }
+            priceEntity.setAddOther(1); // m默认不叠加其它优惠
+            return priceEntity;
+        }).collect(Collectors.toList());
+
+        memberPriceService.saveBatch(priceEntities);
     }
 
 }

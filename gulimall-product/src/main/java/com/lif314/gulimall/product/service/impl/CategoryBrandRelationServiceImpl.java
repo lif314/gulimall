@@ -5,9 +5,15 @@ import com.lif314.gulimall.product.dao.BrandDao;
 import com.lif314.gulimall.product.dao.CategoryDao;
 import com.lif314.gulimall.product.entity.BrandEntity;
 import com.lif314.gulimall.product.entity.CategoryEntity;
+import com.lif314.gulimall.product.service.BrandService;
+import com.lif314.gulimall.product.vo.BrandVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -29,7 +35,6 @@ public class CategoryBrandRelationServiceImpl extends ServiceImpl<CategoryBrandR
 
     @Autowired
     BrandDao brandDao;
-
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -75,5 +80,30 @@ public class CategoryBrandRelationServiceImpl extends ServiceImpl<CategoryBrandR
     public void updateCategoryName(Long catId, String name) {
         this.baseMapper.updateCategory(catId, name);
     }
+
+    @Override
+    public List<CategoryBrandRelationEntity> getBrandsByCatId(Long catId) {
+
+        List<CategoryBrandRelationEntity> relationEntities = this.baseMapper.selectList(new QueryWrapper<CategoryBrandRelationEntity>().eq("catelog_id", catId));
+
+        return relationEntities;
+    }
+
+//    @Override
+//    public List<BrandEntity> getBrandsByCatId(Long catId) {
+//        // 在关联表中进行查询
+//        List<CategoryBrandRelationEntity> relationEntities = relationDao.selectList(new QueryWrapper<CategoryBrandRelationEntity>().eq("catelog_id", catId));
+//        // 为了重用
+//        List<BrandEntity> brandEntities = relationEntities.stream().map((item) -> {
+//            Long brandId = item.getBrandId();
+//            // 一般调用别的业务逻辑，使用别的Service
+//            BrandEntity byId = brandService.getById(brandId);
+//            return byId;
+//
+//        }).collect(Collectors.toList());
+//
+//        return brandEntities;
+//    }
+
 
 }

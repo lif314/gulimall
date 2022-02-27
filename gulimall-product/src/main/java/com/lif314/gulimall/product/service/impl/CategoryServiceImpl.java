@@ -53,7 +53,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         // 找到一级分类 -- 父分类id为0
         List<CategoryEntity> menuTree = categoryEntities.stream().filter( (categoryEntity) -> {
             // 过滤条件
-            return categoryEntity.getParentCid().longValue() == 0;
+            return categoryEntity.getParentCid() == 0L;
             // 一级分类收集为集合
         }).map((menu) -> {
             // 保存每一个菜单的子分类

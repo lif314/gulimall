@@ -5,12 +5,12 @@ import java.util.List;
 import java.util.Map;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
-import com.alibaba.nacos.shaded.org.checkerframework.framework.qual.PolymorphicQualifier;
 import com.lif314.gulimall.product.entity.AttrEntity;
 import com.lif314.gulimall.product.service.AttrAttrgroupRelationService;
 import com.lif314.gulimall.product.service.AttrService;
 import com.lif314.gulimall.product.service.CategoryService;
 import com.lif314.gulimall.product.vo.AttrGroupRelationVo;
+import com.lif314.gulimall.product.vo.AttrGroupWithAttrsVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,6 +41,21 @@ public class AttrGroupController {
 
     @Autowired
     AttrAttrgroupRelationService relationService;
+
+
+    /**
+     * 获取分类下所有分组&关联属性
+     *
+     * /product/attrgroup/{catelogId}/withattr
+     */
+
+    @GetMapping("/{catelogId}/withattr")
+    public R getCategoryGroupAttr(@PathVariable("catelogId") Long catelogId){
+        // 1 查出分类下的所有属性分组
+        // 2 查出属性分组下的所有属性
+        List<AttrGroupWithAttrsVo>  vos =  attrGroupService.getAttrGroupWithAttrsByCatelogId(catelogId);
+        return R.ok().put("data", vos);
+    }
 
 
     /**
