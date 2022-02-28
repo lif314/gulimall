@@ -1,7 +1,6 @@
-package com.lif314.gulimall.product.config;
+package com.lif314.gulimall.ware.config;
 
 import com.baomidou.mybatisplus.annotation.DbType;
-import com.baomidou.mybatisplus.autoconfigure.ConfigurationCustomizer;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
 import org.mybatis.spring.annotation.MapperScan;
@@ -11,8 +10,8 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
 @EnableTransactionManagement // 开启事务功能
-@MapperScan("com.lif314.gulimall.product.dao")  // 包扫描 Mapper接口
-public class MyBatisConfig {
+@MapperScan("com.lif314.gulimall.ware.dao")  // 包扫描 Mapper接口
+public class WareMyBatisConfig {
 
     // 引入分页插件
     /**

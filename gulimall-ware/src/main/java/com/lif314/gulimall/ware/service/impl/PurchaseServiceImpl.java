@@ -1,18 +1,20 @@
 package com.lif314.gulimall.ware.service.impl;
 
 import com.lif314.common.constant.WareConstant;
-import com.lif314.common.utils.R;
 import com.lif314.gulimall.ware.entity.PurchaseDetailEntity;
 import com.lif314.gulimall.ware.service.PurchaseDetailService;
-import com.lif314.gulimall.ware.vo.ItemVo;
+import com.lif314.gulimall.ware.service.WareSkuService;
+import com.lif314.gulimall.ware.vo.PurchaseItemDoneVo;
 import com.lif314.gulimall.ware.vo.MergeVo;
 import com.lif314.gulimall.ware.vo.PurchaseDoneVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -34,6 +36,9 @@ public class PurchaseServiceImpl extends ServiceImpl<PurchaseDao, PurchaseEntity
     @Autowired
     PurchaseDetailService purchaseDetailService;
 
+    @Autowired
+    WareSkuService wareSkuService;
+
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
         IPage<PurchaseEntity> page = this.page(
@@ -46,6 +51,7 @@ public class PurchaseServiceImpl extends ServiceImpl<PurchaseDao, PurchaseEntity
 
     /**
      * 获取未分配的采购单：新建  已分配
+     *
      * @param params
      * @return
      */
@@ -79,8 +85,8 @@ public class PurchaseServiceImpl extends ServiceImpl<PurchaseDao, PurchaseEntity
     public void mergeProcurements(MergeVo mergeVo) {
 
         Long purchaseId = mergeVo.getPurchaseId();
-        if(purchaseId == null){
-        // 没有采购单，则新建一个采购单
+        if (purchaseId == null) {
+            // 没有采购单，则新建一个采购单
             PurchaseEntity purchaseEntity = new PurchaseEntity();
             // 设置一些默认值
             purchaseEntity.setCreateTime(new Date());
@@ -89,6 +95,8 @@ public class PurchaseServiceImpl extends ServiceImpl<PurchaseDao, PurchaseEntity
             this.save(purchaseEntity);
             purchaseId = purchaseEntity.getId();
         }
+
+        // TODO 确定采购单状态是0和1的才能合并
 
         List<Long> items = mergeVo.getItems();
         Long finalPurchaseId = purchaseId;
@@ -106,7 +114,7 @@ public class PurchaseServiceImpl extends ServiceImpl<PurchaseDao, PurchaseEntity
 
 
         // 更新采购单的时间信息
-        PurchaseEntity updatePurchase =  new PurchaseEntity();
+        PurchaseEntity updatePurchase = new PurchaseEntity();
         updatePurchase.setId(purchaseId);
         updatePurchase.setUpdateTime(new Date());
         this.updateById(updatePurchase);
@@ -149,7 +157,7 @@ public class PurchaseServiceImpl extends ServiceImpl<PurchaseDao, PurchaseEntity
          * 对于每一个采购单的id，收集与其相关的所有的采购需求id集合，设置
          * 新的状态，然后批量更新
          */
-        ids.forEach((item)->{
+        ids.forEach((item) -> {
             List<PurchaseDetailEntity> purchaseDetailEntities = purchaseDetailService.listDetailByPurchaseId(item);
             List<PurchaseDetailEntity> detailEntities = purchaseDetailEntities.stream().map((entity) -> {
                 // 更新状态 --- 正在采购
@@ -170,8 +178,39 @@ public class PurchaseServiceImpl extends ServiceImpl<PurchaseDao, PurchaseEntity
      */
     @Override
     public void purchaseDone(PurchaseDoneVo purchaseDoneVo) {
+        // 分离采购项 成功与 有异常
+        Boolean flag = true;
+        List<PurchaseItemDoneVo> items = purchaseDoneVo.getItems();
+        List<PurchaseDetailEntity> updateItems = new ArrayList<>();
+        for(PurchaseItemDoneVo item : items ) {
+            PurchaseDetailEntity detailEntity = new PurchaseDetailEntity();
+            if (item.getStatus() == WareConstant.PurchaseDetailStatusEnum.FAILURE.getStatus()) {
+                flag = false;
+                // 失败状态
+                detailEntity.setStatus(WareConstant.PurchaseDetailStatusEnum.FAILURE.getStatus());
+            }else{
+                // 成功状态
+                detailEntity.setStatus(WareConstant.PurchaseDetailStatusEnum.FINISH.getStatus());
 
-        List<ItemVo> items = purchaseDoneVo.getItems();
+                // 根据id查询当前采购项的具体信息后添加到库存中
+                PurchaseDetailEntity detailServiceById = purchaseDetailService.getById(item.getItemId());
+                // 将成功采购的进行入库
+                wareSkuService.addStock(detailServiceById.getSkuId(), detailServiceById.getWareId(), detailServiceById.getSkuNum());
+            }
+            // 添加需要更新的数据
+            detailEntity.setId(item.getItemId());
+            updateItems.add(detailEntity);
+        };
+        // 改变采购项的状态
+        purchaseDetailService.updateBatchById(updateItems);
+
+        // 改变采购单的状态 -- 需要所有采购项的状态完成才能标记为完成
+
+        PurchaseEntity purchaseEntity = new PurchaseEntity();
+        purchaseEntity.setId(purchaseDoneVo.getId());
+        purchaseEntity.setStatus(flag ? WareConstant.PurchaseStatusEnum.FINISH.getStatus() : WareConstant.PurchaseStatusEnum.HASERROR.getStatus());
+        purchaseEntity.setUpdateTime(new Date());
+        this.updateById(purchaseEntity);
 
     }
 

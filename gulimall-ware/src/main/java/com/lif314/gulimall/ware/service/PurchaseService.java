@@ -29,4 +29,3 @@ public interface PurchaseService extends IService<PurchaseEntity> {
 
     void purchaseDone(PurchaseDoneVo purchaseDoneVo);
 }
-

@@ -3,7 +3,7 @@ package com.lif314.gulimall.ware.vo;
 import lombok.Data;
 
 @Data
-public class ItemVo {
+public class PurchaseItemDoneVo {
 
     /**
      * {
@@ -12,6 +12,6 @@ public class ItemVo {
      * }
      */
     private Long itemId;
-    private int status;
+    private Integer status;
     private String reason;
 }
