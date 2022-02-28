@@ -7,6 +7,7 @@ import com.lif314.gulimall.product.entity.*;
 import com.lif314.gulimall.product.feign.CouponFeignService;
 import com.lif314.gulimall.product.saveVo.*;
 import com.lif314.gulimall.product.service.*;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -167,8 +168,12 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
                     skuImagesEntity.setImgUrl(img.getImgUrl());
                     skuImagesEntity.setDefaultImg(img.getDefaultImg());
                     return skuImagesEntity;
+                }).filter((entity)->{
+                    //过滤空的图片：true是需要，false是剔除
+                    return !StringUtils.isEmpty(entity.getImgUrl());
                 }).collect(Collectors.toList());
                 skuImagesService.saveBatch(imagesEntities);
+                // TODO: 没有图片，路径无需保存
 
                 // 6.3 sku的销售属性信息 pms_sku_sale_attr_value
                 List<Attr> attr = item.getAttr();
@@ -190,9 +195,13 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
                 SkuReductionTo skuReductionTo = new SkuReductionTo();
                 BeanUtils.copyProperties(item, skuReductionTo);
                 skuReductionTo.setSkuId(skuId);
-                R r1 = couponFeignService.saveSkuReduction(skuReductionTo);
-                if (r1.getCode() != 0) {
-                    log.error("远程保存spu优惠信息、满减信息失败！");
+                // 剔除没有意义的满减信息
+                // 存在打折数据 || 存在满减信息 || 存在会员优惠价格信息
+                if(skuReductionTo.getFullCount() > 0 || skuReductionTo.getFullPrice().compareTo(new BigDecimal("0")) > 0 || (skuReductionTo.getMemberPrice() != null && skuReductionTo.getMemberPrice().size() > 0) ){
+                    R r1 = couponFeignService.saveSkuReduction(skuReductionTo);
+                    if (r1.getCode() != 0) {
+                        log.error("远程保存spu优惠信息、满减信息失败！");
+                    }
                 }
             });
         }
