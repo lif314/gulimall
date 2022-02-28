@@ -1,15 +1,15 @@
 package com.lif314.gulimall.ware.controller;
 
 import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.lif314.gulimall.ware.vo.MergeVo;
+import com.lif314.gulimall.ware.vo.PurchaseDoneVo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.lif314.gulimall.ware.entity.PurchaseEntity;
 import com.lif314.gulimall.ware.service.PurchaseService;
@@ -30,6 +30,52 @@ import com.lif314.common.utils.R;
 public class PurchaseController {
     @Autowired
     private PurchaseService purchaseService;
+
+    /**
+     * 查询出【新建的】和【已分配】的采购单 -- 未领取的采购单
+     * /ware/purchase/unreceive/list
+     */
+    @GetMapping("/unreceive/list")
+    public R unreceiveList(@RequestParam Map<String, Object> params){
+        PageUtils page = purchaseService.queryPageUnreceiveList(params);
+        return R.ok().put("page", page);
+    }
+
+    /**
+     * 合并采购需求
+     *
+     * /ware/purchase/merge
+     */
+    @PostMapping("/merge")
+    public R mergeProcurementRequirements(@RequestBody MergeVo mergeVo){
+        purchaseService.mergeProcurements(mergeVo);
+        return R.ok();
+    }
+
+    /**
+     * /ware/purchase/received
+     *
+     * 领取采购单
+     *
+     * 请求参数：[1,2,3,4]   //采购单id
+     */
+    @PostMapping("/received")
+    public R received(@RequestBody List<Long> ids){
+        purchaseService.received(ids);
+        return R.ok();
+    }
+
+    /**
+     * 完成采购
+     *
+     * /ware/purchase/done
+     */
+    @PostMapping("/done")
+    public R done(@RequestBody PurchaseDoneVo purchaseDoneVo){
+        purchaseService.purchaseDone(purchaseDoneVo);
+        return R.ok();
+    }
+
 
     /**
      * 列表
@@ -60,6 +106,8 @@ public class PurchaseController {
     @RequestMapping("/save")
 //    @RequiresPermissions("ware:purchase:save")
     public R save(@RequestBody PurchaseEntity purchase){
+        purchase.setCreateTime(new Date());
+        purchase.setUpdateTime(new Date());
 		purchaseService.save(purchase);
 
         return R.ok();
