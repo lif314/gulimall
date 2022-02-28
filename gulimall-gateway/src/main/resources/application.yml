@@ -29,6 +29,13 @@ spring:
             - Path=/api/coupon/**
           filters:
             - RewritePath=/api/(?<segment>/?.*),/$\{segment}
+        # 库存服务
+        - id: ware_route
+          uri: lb://gulimall-ware
+          predicates:
+            - Path=/api/ware/**
+          filters:
+            - RewritePath=/api/(?<segment>/?.*),/$\{segment}
         # renren-fast
         - id: admin_route
           uri: lb://renren-fast

@@ -22,3 +22,8 @@ mybatis-plus:
       id-type: auto
 server:
   port: 8400
+
+
+logging:
+  level:
+    com.lif314: debug
