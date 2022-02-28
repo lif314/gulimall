@@ -6,7 +6,6 @@ import com.lif314.common.utils.R;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * 远程调用接口
@@ -27,9 +26,15 @@ public interface CouponFeignService {
      * 总结：只要json数据模型是兼容的(对象的属性名相同)。双方服务无需使用同一个To
      */
 
+    /**
+     * 新增积分信息（当前spu商品购买新增的积分规则信息）
+     */
     @PostMapping("coupon/spubounds/save")  // 完整路径
     R saveSpuBounds(@RequestBody SpuBoundTo spuBoundTo);
 
+    /**
+     * 新增满减信息
+     */
     @PostMapping("coupon/skufullreduction/saveinfo")
     R saveSkuReduction(@RequestBody SkuReductionTo skuReductionTo);
 }

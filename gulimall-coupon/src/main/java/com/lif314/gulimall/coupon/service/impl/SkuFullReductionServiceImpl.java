@@ -65,6 +65,8 @@ public class SkuFullReductionServiceImpl extends ServiceImpl<SkuFullReductionDao
             skuLadderEntity.setSkuId(skuReductionTo.getSkuId());
             skuLadderEntity.setFullCount(skuReductionTo.getFullCount());
             skuLadderEntity.setDiscount(skuReductionTo.getDiscount());
+            // 计算优惠的价格 -- 留在优惠系统中处理
+//            skuLadderEntity.setPrice(new BigDecimal("0"));
             // 打折状态，是否还有其它优惠
             skuLadderEntity.setAddOther(skuReductionTo.getCountStatus());
             // 保存满减优惠信息
@@ -72,9 +74,8 @@ public class SkuFullReductionServiceImpl extends ServiceImpl<SkuFullReductionDao
         }
 
 
-
         // 存在满减信息才进行保存
-        if(skuReductionTo.getFullPrice().compareTo(new BigDecimal("0")) > 0){
+        if(skuReductionTo.getFullPrice() != null && skuReductionTo.getFullPrice().compareTo(new BigDecimal("0")) > 0){
             // 保存满减信息
             SkuFullReductionEntity skuFullReductionEntity = new SkuFullReductionEntity();
             BeanUtils.copyProperties(skuReductionTo, skuFullReductionEntity);
@@ -82,23 +83,27 @@ public class SkuFullReductionServiceImpl extends ServiceImpl<SkuFullReductionDao
         }
 
 
-        // 保存会员价格
+        // 保存会员价格 -- 会员价格不为空
         List<MemberPrice> memberPrice = skuReductionTo.getMemberPrice();
-        List<MemberPriceEntity> priceEntities = memberPrice.stream().map((item) -> {
-            MemberPriceEntity priceEntity = new MemberPriceEntity();
-            priceEntity.setSkuId(skuReductionTo.getSkuId());
-            priceEntity.setMemberLevelId(item.getId());// 会员等级id
-            priceEntity.setMemberLevelName(item.getName());
-            if (item.getPrice() != null) {
-                priceEntity.setMemberPrice(item.getPrice());
-            }
-            priceEntity.setAddOther(1); // m默认不叠加其它优惠
-            return priceEntity;
-        }).filter((item)->{
-            return item.getMemberPrice().compareTo(new BigDecimal("0")) > 0;
-        }).collect(Collectors.toList());
+        if(memberPrice != null && memberPrice.size() > 0){
+            List<MemberPriceEntity> priceEntities = memberPrice.stream().map((item) -> {
+                MemberPriceEntity priceEntity = new MemberPriceEntity();
+                priceEntity.setSkuId(skuReductionTo.getSkuId());
+                priceEntity.setMemberLevelId(item.getId());// 会员等级id
+                priceEntity.setMemberLevelName(item.getName());
+                if (item.getPrice() != null) {
+                    priceEntity.setMemberPrice(item.getPrice());
+                }
+                priceEntity.setAddOther(1); // 默认不叠加其它优惠
+                return priceEntity;
+            }).filter((item)->{
+                // 过滤无意义的会员价格数据
+                return item.getMemberPrice().compareTo(new BigDecimal("0")) > 0;
+            }).collect(Collectors.toList());
 
-        memberPriceService.saveBatch(priceEntities);
+            memberPriceService.saveBatch(priceEntities);
+        }
+
     }
 
 }

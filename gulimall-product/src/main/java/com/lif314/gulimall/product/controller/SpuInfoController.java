@@ -34,12 +34,12 @@ public class SpuInfoController {
 
 
     /**
-     * 列表
+     * SPU检索信息
      */
     @RequestMapping("/list")
     //@RequiresPermissions("product:spuinfo:list")
     public R list(@RequestParam Map<String, Object> params){
-        PageUtils page = spuInfoService.queryPage(params);
+        PageUtils page = spuInfoService.queryPageByConditions(params);
 
         return R.ok().put("page", page);
     }

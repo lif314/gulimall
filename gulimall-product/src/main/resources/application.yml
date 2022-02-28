@@ -10,14 +10,16 @@ spring:
       discovery:
         server-addr: 121.36.229.15:8848
     alicloud:
-      access-key: 
-      secret-key: 
+      access-key:
+      secret-key:
       oss:
         endpoint: https://oss-cn-shanghai.aliyuncs.com
   # 模块名
   application:
     name: gulimall-product
-
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
 # sql映射文件位置
 mybatis-plus:
   mapper-locations: classpath:/mapper/**/*.xml

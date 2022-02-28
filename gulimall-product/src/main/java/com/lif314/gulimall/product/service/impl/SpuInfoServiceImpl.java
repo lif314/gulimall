@@ -197,7 +197,7 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
                 skuReductionTo.setSkuId(skuId);
                 // 剔除没有意义的满减信息
                 // 存在打折数据 || 存在满减信息 || 存在会员优惠价格信息
-                if(skuReductionTo.getFullCount() > 0 || skuReductionTo.getFullPrice().compareTo(new BigDecimal("0")) > 0 || (skuReductionTo.getMemberPrice() != null && skuReductionTo.getMemberPrice().size() > 0) ){
+                if(skuReductionTo.getFullCount() > 0 || (skuReductionTo.getFullPrice()!=null && skuReductionTo.getFullPrice().compareTo(new BigDecimal("0")) > 0) || (skuReductionTo.getMemberPrice() != null && skuReductionTo.getMemberPrice().size() > 0) ){
                     R r1 = couponFeignService.saveSkuReduction(skuReductionTo);
                     if (r1.getCode() != 0) {
                         log.error("远程保存spu优惠信息、满减信息失败！");
@@ -205,6 +205,64 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
                 }
             });
         }
+    }
+
+    /**
+     * Spu检索
+     * {
+     *    page: 1,//当前页码
+     *    limit: 10,//每页记录数
+     *    sidx: 'id',//排序字段
+     *    order: 'asc/desc',//排序方式
+     *    key: '华为',//检索关键字
+     *    catelogId: 6,//三级分类id
+     *    brandId: 1,//品牌id
+     *    status: 0,//商品状态
+     * }
+     *
+     * 检索条件：
+     *      - 模糊查询 key
+     *      - 三级分类 catelogId
+     *      - 品牌 brandId
+     *      - 商品状态 status
+     */
+    @Override
+    public PageUtils queryPageByConditions(Map<String, Object> params) {
+
+        QueryWrapper<SpuInfoEntity> wrapper = new QueryWrapper<>();
+
+        // 模糊查询
+        // status = 1 and (id=1 or spu_name like xxx)
+        String key = (String) params.get("key");
+        if(!StringUtils.isEmpty(key)){
+            wrapper.and((w)->{
+                w.eq("id", key).or().like("spu_name", key);
+            });
+        }
+
+        // 三级分类
+        String catelogId = (String) params.get("catelogId");
+        if(!StringUtils.isEmpty(catelogId) && !"0".equalsIgnoreCase(catelogId)){
+            wrapper.eq("catalog_id", catelogId);
+        }
+
+        // 品牌
+        String brandId = (String) params.get("brandId");
+        if(!StringUtils.isEmpty(brandId) && !"0".equalsIgnoreCase(brandId)){
+            wrapper.eq("brand_id", brandId);
+        }
+
+        // 商品状态
+        String status = (String) params.get("status");
+        if(!StringUtils.isEmpty(status)){
+            wrapper.eq("publish_status", status);
+        }
+
+        IPage<SpuInfoEntity> page = this.page(
+                new Query<SpuInfoEntity>().getPage(params),
+                wrapper
+        );
+        return new PageUtils(page);
     }
 
 }
