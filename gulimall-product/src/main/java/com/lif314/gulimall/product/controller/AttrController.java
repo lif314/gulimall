@@ -3,13 +3,17 @@ package com.lif314.gulimall.product.controller;
 import com.lif314.common.utils.PageUtils;
 import com.lif314.common.utils.R;
 import com.lif314.gulimall.product.entity.AttrEntity;
+import com.lif314.gulimall.product.entity.ProductAttrValueEntity;
+import com.lif314.gulimall.product.entity.SpuInfoEntity;
 import com.lif314.gulimall.product.service.AttrService;
+import com.lif314.gulimall.product.service.ProductAttrValueService;
 import com.lif314.gulimall.product.vo.AttrRespVo;
 import com.lif314.gulimall.product.vo.AttrVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 
@@ -27,6 +31,9 @@ public class AttrController {
     @Autowired
     private AttrService attrService;
 
+    @Autowired
+    ProductAttrValueService productAttrValueService;
+
     /**
      * 列表
      */
@@ -36,6 +43,31 @@ public class AttrController {
         PageUtils page = attrService.queryPage(params);
 
         return R.ok().put("page", page);
+    }
+
+    /**
+     * 获取SPU规格
+     * /product/attr/base/listforspu/{spuId}
+     */
+
+    @GetMapping("/base/listforspu/{spuId}")
+    public R listForSpu(@PathVariable("spuId") Long spuId){
+         List<ProductAttrValueEntity> data = productAttrValueService.listForSpu(spuId);
+
+        return R.ok().put("data", data);
+    }
+
+
+    /**
+     * 修改商品规格
+     *
+     * /product/attr/update/{spuId}
+     */
+    @PostMapping("/update/{spuId}")
+    public R updateSpuAttrs(@PathVariable("spuId") Long spuId,
+                           @RequestBody List<ProductAttrValueEntity> entities){
+        productAttrValueService.updateSpuAttrs(spuId, entities);
+        return R.ok();
     }
 
 
