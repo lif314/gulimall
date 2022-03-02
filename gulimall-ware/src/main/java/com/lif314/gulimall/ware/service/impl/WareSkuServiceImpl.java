@@ -1,5 +1,6 @@
 package com.lif314.gulimall.ware.service.impl;
 
+import com.lif314.common.to.SkuHasStockTo;
 import com.lif314.common.utils.R;
 import com.lif314.gulimall.ware.feign.ProductFeignService;
 import org.apache.commons.lang.StringUtils;
@@ -8,6 +9,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -98,6 +101,26 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
             // 更新操作
             wareSkuDao.addStock(skuId, wareId, skuNum);
         }
+    }
+
+    /**
+     * 远程查询是否有库存
+     */
+    @Override
+    public List<SkuHasStockTo> getSkuHasStock(List<Long> skuIds) {
+
+
+        List<SkuHasStockTo> skuHasStockTos = skuIds.stream().map((skuId) -> {
+            SkuHasStockTo skuHasStockTo = new SkuHasStockTo();
+            skuHasStockTo.setSkuId(skuId);
+            // 每一个商品可能在不同仓库中，我们需要查的是总库存量
+            // 总库存量=库存总量-锁定的库存(下单未发货)
+            Long totalStock = baseMapper.getTotalStock(skuId);
+            skuHasStockTo.setHasStock(totalStock > 0);
+            return skuHasStockTo;
+        }).collect(Collectors.toList());
+
+        return skuHasStockTos;
     }
 
 }

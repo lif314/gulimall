@@ -68,4 +68,13 @@ public class ProductAttrValueServiceImpl extends ServiceImpl<ProductAttrValueDao
         this.saveBatch(collect);
     }
 
+    /**
+     * 将可检索的规格属性的Id返回
+     */
+    @Override
+    public List<Long> selectSearchAttrs(List<Long> attrIds) {
+        // SELECT attr_id FROM `pms_attr` WHERE attr_id IN(?) AND search_type = 1
+        return baseMapper.selectSearchAttrs(attrIds);
+    }
+
 }

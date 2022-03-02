@@ -2,9 +2,11 @@ package com.lif314.gulimall.product.service.impl;
 
 import com.lif314.common.to.SkuReductionTo;
 import com.lif314.common.to.SpuBoundTo;
+import com.lif314.common.to.es.SkuEsModel;
 import com.lif314.common.utils.R;
 import com.lif314.gulimall.product.entity.*;
 import com.lif314.gulimall.product.feign.CouponFeignService;
+import com.lif314.gulimall.product.feign.WareFeignService;
 import com.lif314.gulimall.product.saveVo.*;
 import com.lif314.gulimall.product.service.*;
 import org.apache.commons.lang.StringUtils;
@@ -14,9 +16,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -57,6 +57,15 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
     // 注入远程调用服务
     @Autowired
     CouponFeignService couponFeignService;
+
+    @Autowired
+    BrandService brandService;
+
+    @Autowired
+    CategoryService categoryService;
+
+    @Autowired
+    WareFeignService wareFeignService;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -264,5 +273,78 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
         );
         return new PageUtils(page);
     }
+
+    /**
+     * 商品上架
+     */
+    @Override
+    public void upProduct(Long spuId) {
+
+        /**
+         *   组装数据
+         */
+        // 【1】 查出当前spuid对应的所有的sku信息，品牌的名字等
+        List<SkuInfoEntity> skus = skuInfoService.getSkusBySpuId(spuId);
+        // 【2】 封装每一个sku信息
+
+       // 一次查询是否有存储
+        List<Long> skuIds = skus.stream().map(SkuInfoEntity::getSkuId).collect(Collectors.toList());
+        R skuHasStock = wareFeignService.getSkuHasStock(skuIds);
+
+
+        skus.stream().map((sku)->{
+            // 组装需要的数据
+             SkuEsModel esModel = new SkuEsModel();
+             // 相同属性值进行对拷
+            BeanUtils.copyProperties(sku, esModel);
+            // 不同属性的值重新处理
+            esModel.setSkuPrice(sku.getPrice());
+            esModel.setSkuImg(sku.getSkuDefaultImg());
+
+            // 热度评分 hasStore: TODO 默认0
+            esModel.setHotScore(0L);
+
+            // TODO 品牌和分类的名字信息
+            // 品牌信息
+            BrandEntity brand = brandService.getById(sku.getBrandId());
+            esModel.setBrandName(brand.getName());
+            esModel.setBrandImg(brand.getLogo());
+            // 分类信息
+            CategoryEntity category = categoryService.getById(sku.getCatalogId());
+            esModel.setCatalogName(category.getName());
+
+
+            // TODO 查询当前sku的所有【可以被检索】规格属性
+            List<ProductAttrValueEntity> baseAttrs = productAttrValueService.listForSpu(spuId);
+            List<Long> attrIds = baseAttrs.stream().map(ProductAttrValueEntity::getAttrId).collect(Collectors.toList());
+            // 查询所有可以被检索的规格属性
+            List<Long> searchAttrs = productAttrValueService.selectSearchAttrs(attrIds);
+            Set<Long> idSet = new HashSet<>(searchAttrs);
+
+            List<SkuEsModel.Attrs> attrs= baseAttrs.stream().filter((item) -> {
+                return idSet.contains(item.getAttrId());
+            }).map((item) -> {
+                SkuEsModel.Attrs attrs1 = new SkuEsModel.Attrs();
+                BeanUtils.copyProperties(item, attrs1);
+                return attrs1;
+            }).collect(Collectors.toList());
+            // 设置检索属性
+            esModel.setAttrs(attrs);
+
+            // 是否拥有库存 hasStock： TODO gulimall-ware发送询问
+
+
+
+
+            // TODO 发送给ES进行保存 gulimall-search
+            return esModel;
+        }).collect(Collectors.toList());
+
+
+
+    }
+
+
+
 
 }
