@@ -1,11 +1,13 @@
 package com.lif314.gulimall.product.service.impl;
 
+import com.lif314.common.to.SkuHasStockTo;
 import com.lif314.common.to.SkuReductionTo;
 import com.lif314.common.to.SpuBoundTo;
 import com.lif314.common.to.es.SkuEsModel;
 import com.lif314.common.utils.R;
 import com.lif314.gulimall.product.entity.*;
 import com.lif314.gulimall.product.feign.CouponFeignService;
+import com.lif314.gulimall.product.feign.SearchFeignService;
 import com.lif314.gulimall.product.feign.WareFeignService;
 import com.lif314.gulimall.product.saveVo.*;
 import com.lif314.gulimall.product.service.*;
@@ -66,6 +68,9 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
 
     @Autowired
     WareFeignService wareFeignService;
+
+    @Autowired
+    SearchFeignService searchFeignService;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -285,17 +290,42 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
          */
         // 【1】 查出当前spuid对应的所有的sku信息，品牌的名字等
         List<SkuInfoEntity> skus = skuInfoService.getSkusBySpuId(spuId);
+
+        // TODO 查询当前sku的所有【可以被检索】规格属性
+        List<ProductAttrValueEntity> baseAttrs = productAttrValueService.listForSpu(spuId);
+        List<Long> attrIds = baseAttrs.stream().map(ProductAttrValueEntity::getAttrId).collect(Collectors.toList());
+        // 查询所有可以被检索的规格属性
+        List<Long> searchAttrs = productAttrValueService.selectSearchAttrs(attrIds);
+        Set<Long> idSet = new HashSet<>(searchAttrs);
+
+        List<SkuEsModel.Attrs> attrs= baseAttrs.stream().filter((item) -> {
+            return idSet.contains(item.getAttrId());
+        }).map((item) -> {
+            SkuEsModel.Attrs attrs1 = new SkuEsModel.Attrs();
+            BeanUtils.copyProperties(item, attrs1);
+            return attrs1;
+        }).collect(Collectors.toList());
+
+
+        List<Long> skuIdList = skus.stream().map(SkuInfoEntity::getSkuId).collect(Collectors.toList());
+       // 一次查询是否有库存 -- 远程调用可能失败
+        Map<Long, Boolean> stockMap = null;
+        try{
+            R<List<SkuHasStockTo>> skuHasStock = wareFeignService.getSkuHasStock(skuIdList);
+            // 转换成map
+            stockMap = skuHasStock.getData().stream().collect(Collectors.toMap(SkuHasStockTo::getSkuId, SkuHasStockTo::getHasStock));
+        }
+        catch (Exception e){
+            log.error("库存查询出现异常：{}" ,e);
+        }
+
+
+        Map<Long, Boolean> finalStockMap = stockMap;
         // 【2】 封装每一个sku信息
-
-       // 一次查询是否有存储
-        List<Long> skuIds = skus.stream().map(SkuInfoEntity::getSkuId).collect(Collectors.toList());
-        R skuHasStock = wareFeignService.getSkuHasStock(skuIds);
-
-
-        skus.stream().map((sku)->{
+        List<SkuEsModel> upProducts = skus.stream().map((sku) -> {
             // 组装需要的数据
-             SkuEsModel esModel = new SkuEsModel();
-             // 相同属性值进行对拷
+            SkuEsModel esModel = new SkuEsModel();
+            // 相同属性值进行对拷
             BeanUtils.copyProperties(sku, esModel);
             // 不同属性的值重新处理
             esModel.setSkuPrice(sku.getPrice());
@@ -313,38 +343,31 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
             CategoryEntity category = categoryService.getById(sku.getCatalogId());
             esModel.setCatalogName(category.getName());
 
-
-            // TODO 查询当前sku的所有【可以被检索】规格属性
-            List<ProductAttrValueEntity> baseAttrs = productAttrValueService.listForSpu(spuId);
-            List<Long> attrIds = baseAttrs.stream().map(ProductAttrValueEntity::getAttrId).collect(Collectors.toList());
-            // 查询所有可以被检索的规格属性
-            List<Long> searchAttrs = productAttrValueService.selectSearchAttrs(attrIds);
-            Set<Long> idSet = new HashSet<>(searchAttrs);
-
-            List<SkuEsModel.Attrs> attrs= baseAttrs.stream().filter((item) -> {
-                return idSet.contains(item.getAttrId());
-            }).map((item) -> {
-                SkuEsModel.Attrs attrs1 = new SkuEsModel.Attrs();
-                BeanUtils.copyProperties(item, attrs1);
-                return attrs1;
-            }).collect(Collectors.toList());
             // 设置检索属性
             esModel.setAttrs(attrs);
 
             // 是否拥有库存 hasStock： TODO gulimall-ware发送询问
+            if (finalStockMap == null) {
+                // 查询失败，默认为true
+                esModel.setHasStock(true);
+            } else {
+                esModel.setHasStock(finalStockMap.get(sku.getSkuId()));
+            }
 
-
-
-
-            // TODO 发送给ES进行保存 gulimall-search
             return esModel;
         }).collect(Collectors.toList());
 
+        // TODO 发送给ES进行保存 gulimall-search
+        R r = searchFeignService.productStatusUp(upProducts);
+        if(r.getCode() == 0){
+            // 远程调用成功
+            // TODO 修改当前spu状态
+
+        }else {
+            // 远程调用失败
+        }
 
 
     }
-
-
-
 
 }

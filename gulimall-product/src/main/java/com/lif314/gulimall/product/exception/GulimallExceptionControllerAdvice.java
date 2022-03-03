@@ -1,5 +1,6 @@
 package com.lif314.gulimall.product.exception;
 
+import com.lif314.common.exception.BizCodeEnum;
 import com.lif314.common.utils.R;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.BindingResult;

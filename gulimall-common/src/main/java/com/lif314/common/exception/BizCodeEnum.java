@@ -1,4 +1,4 @@
-package com.lif314.gulimall.product.exception;
+package com.lif314.common.exception;
 
 /***
  * 错误码和错误信息定义类
@@ -20,7 +20,9 @@ public enum BizCodeEnum {
 
     UNKNOW_EXEPTION(10000,"系统未知异常"),
 
-    VALID_EXCEPTION( 10001,"参数格式校验失败");
+    VALID_EXCEPTION( 10001,"参数格式校验失败"),
+
+    PRODUCT_UP_EXCEPTION(11000,"商品上架出错");
 
     private  int code;
     private  String msg;
