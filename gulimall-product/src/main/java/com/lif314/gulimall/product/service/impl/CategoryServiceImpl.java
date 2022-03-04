@@ -1,6 +1,7 @@
 package com.lif314.gulimall.product.service.impl;
 
 import com.lif314.gulimall.product.service.CategoryBrandRelationService;
+import com.lif314.gulimall.product.vo.Catelog2Vo;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -51,7 +52,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
         // [2] 组装成父子树形结构
         // 找到一级分类 -- 父分类id为0
-        List<CategoryEntity> menuTree = categoryEntities.stream().filter( (categoryEntity) -> {
+        List<CategoryEntity> menuTree = categoryEntities.stream().filter((categoryEntity) -> {
             // 过滤条件
             return categoryEntity.getParentCid() == 0L;
             // 一级分类收集为集合
@@ -61,7 +62,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
             return menu;
         }).sorted((menu1, menu2) -> {
             // 菜单排序
-            return (menu1.getSort() == null?0:menu1.getSort()) - (menu2.getSort() == null?0:menu2.getSort());
+            return (menu1.getSort() == null ? 0 : menu1.getSort()) - (menu2.getSort() == null ? 0 : menu2.getSort());
         }).collect(Collectors.toList());
 
         return menuTree;
@@ -69,6 +70,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
     /**
      * 删除菜单那
+     *
      * @param asList id数组
      */
     @Override
@@ -96,20 +98,72 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     public void updateCascade(CategoryEntity category) {
         this.updateById(category);
         //级联更新
-        if(!StringUtils.isEmpty(category.getName())){
+        if (!StringUtils.isEmpty(category.getName())) {
             categoryBrandRelationService.updateCategoryName(category.getCatId(), category.getName());
 
             // TODO:级联更新
         }
     }
 
+    /**
+     * 查询一级分类数据
+     */
+    @Override
+    public List<CategoryEntity> getLevel1Category() {
+        return baseMapper.selectList(new QueryWrapper<CategoryEntity>().eq("parent_cid", 0));
+    }
+
+    /***
+     * 获取三级分类json数据
+     */
+    @Override
+    public Map<String, List<Catelog2Vo>> getCatelogJson() {
+        // 查出所有的一级分类
+        List<CategoryEntity> level1Categories = getLevel1Category();
+
+        /**
+         * 封装数据
+         *
+         * key: 一级分类的id
+         * Value: 二级分类的列表以及内部的子分类  List<Catelog2Vo>
+         */
+        Map<String, List<Catelog2Vo>> listMap = level1Categories.stream().collect(Collectors.toMap(k -> k.getCatId().toString(), v -> {
+            // 每一个一级分类-- 查询该分类的子分类
+            List<CategoryEntity> categoryEntities = baseMapper.selectList(new QueryWrapper<CategoryEntity>().eq("parent_cid", v.getCatId()));
+            // 封装二级分类列表
+            List<Catelog2Vo> catelog2Vos = null;
+            if (categoryEntities != null) {
+                catelog2Vos = categoryEntities.stream().map((l2) -> {
+                    // 封装二级分类下的三级分类数据
+                    List<CategoryEntity> level3Category = baseMapper.selectList(new QueryWrapper<CategoryEntity>().eq("parent_cid", l2.getCatId()));
+                    List<Catelog2Vo.Category3Vo> category3Vos = null;
+                    if (level3Category != null) {
+                        // 封装Category3Vo
+                        category3Vos = level3Category.stream().map((l3) -> {
+                            Catelog2Vo.Category3Vo category3Vo = new Catelog2Vo.Category3Vo(l2.getCatId().toString(), l3.getCatId().toString(), l3.getName());
+                            return category3Vo;
+                        }).collect(Collectors.toList());
+                    }
+
+                    // 组装二级分类
+                    Catelog2Vo catelog2Vo = new Catelog2Vo(v.getCatId().toString(), category3Vos, l2.getCatId().toString(), l2.getName());
+                    return catelog2Vo;
+                }).collect(Collectors.toList());
+            }
+
+            return catelog2Vos;
+        }));
+        return listMap;
+    }
+
+
     // 递归查询并收集路径信息 225,25,2
-    private List<Long> findParentPath(Long catelogId, List<Long> paths ){
+    private List<Long> findParentPath(Long catelogId, List<Long> paths) {
         // 获取当前分类的id
         paths.add(catelogId);
         CategoryEntity byId = this.getById(catelogId);
         // 如果存在父分类，则需要递归查询
-        if(byId.getParentCid()!=0){
+        if (byId.getParentCid() != 0) {
             //递归查找父节点
             findParentPath(byId.getParentCid(), paths);
         }
@@ -118,8 +172,9 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
     /**
      * 递归查找所有菜单的子菜单
+     *
      * @param root 当前菜单
-     * @param all 所有菜单
+     * @param all  所有菜单
      * @return 子菜单
      */
     private List<CategoryEntity> getChildrens(CategoryEntity root, List<CategoryEntity> all) {
@@ -133,7 +188,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
             return categoryEntity;
         }).sorted((menu1, menu2) -> {
             // 2 菜单的排序
-            return (menu1.getSort() == null?0:menu1.getSort()) - (menu2.getSort() == null?0:menu2.getSort());
+            return (menu1.getSort() == null ? 0 : menu1.getSort()) - (menu2.getSort() == null ? 0 : menu2.getSort());
         }).collect(Collectors.toList());
         return children;
     }

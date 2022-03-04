@@ -35,8 +35,6 @@ public class ProductSaveServiceImpl implements ProductSaveService {
     @Override
     public boolean productStatusUp(List<SkuEsModel> skuEsModelList) throws IOException {
         // 给ES中建立索引  product 建立映射关系
-
-
         BulkRequest bulkRequest = new BulkRequest();
         for (SkuEsModel model : skuEsModelList) {
             // 构造保存请求
@@ -55,8 +53,9 @@ public class ProductSaveServiceImpl implements ProductSaveService {
         boolean b = bulk.hasFailures();
         if(b){
             List<String> collect = Arrays.stream(bulk.getItems()).map(BulkItemResponse::getId).collect(Collectors.toList());
-            log.error("商品上错误：{}", collect);
+            log.error("商品上架错误：{}", collect);
         }
+
         return b;
     }
 }
