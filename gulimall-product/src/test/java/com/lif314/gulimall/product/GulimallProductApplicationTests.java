@@ -4,8 +4,13 @@ package com.lif314.gulimall.product;
 import com.lif314.gulimall.product.entity.BrandEntity;
 import com.lif314.gulimall.product.service.BrandService;
 import org.junit.jupiter.api.Test;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
+
+import java.util.UUID;
 //
 //import java.io.FileInputStream;
 //import java.io.FileNotFoundException;
@@ -20,6 +25,31 @@ class GulimallProductApplicationTests {
 
 //    @Autowired
 //    OSSClient ossClient;
+
+    @Autowired
+    StringRedisTemplate stringRedisTemplate;
+
+    @Autowired
+    RedissonClient redissonClient;
+    @Test
+    public void testRedisson(){
+        System.out.println(redissonClient);
+    }
+
+
+
+
+    @Test
+    public void testReis(){
+        // hello world
+        ValueOperations<String, String> ops = stringRedisTemplate.opsForValue();
+        // 保存
+        ops.set("hello", "world" + UUID.randomUUID().toString());
+        // 查询
+        String hello = ops.get("hello");
+        System.out.println(hello);
+    }
+
 
     @Test
     void contextLoads() {

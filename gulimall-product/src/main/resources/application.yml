@@ -22,6 +22,10 @@ spring:
     time-zone: GMT+8
   thymeleaf:
     cache: false
+  redis:
+    host: 81.68.236.154
+    password: lif314
+    port: 6379
 # sql映射文件位置
 mybatis-plus:
   mapper-locations: classpath:/mapper/**/*.xml
@@ -35,4 +39,5 @@ mybatis-plus:
 
 server:
   port: 8300
+
 
