@@ -3,7 +3,7 @@ package com.lif314.gulimall.order.controller;
 import java.util.Arrays;
 import java.util.Map;
 
-import org.apache.shiro.authz.annotation.RequiresPermissions;
+//import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -35,7 +35,7 @@ public class OrderReturnReasonController {
      * 列表
      */
     @RequestMapping("/list")
-    @RequiresPermissions("order:orderreturnreason:list")
+    //@RequiresPermissions("order:orderreturnreason:list")
     public R list(@RequestParam Map<String, Object> params){
         PageUtils page = orderReturnReasonService.queryPage(params);
 
@@ -47,7 +47,7 @@ public class OrderReturnReasonController {
      * 信息
      */
     @RequestMapping("/info/{id}")
-    @RequiresPermissions("order:orderreturnreason:info")
+    //@RequiresPermissions("order:orderreturnreason:info")
     public R info(@PathVariable("id") Long id){
 		OrderReturnReasonEntity orderReturnReason = orderReturnReasonService.getById(id);
 
@@ -58,7 +58,7 @@ public class OrderReturnReasonController {
      * 保存
      */
     @RequestMapping("/save")
-    @RequiresPermissions("order:orderreturnreason:save")
+    //@RequiresPermissions("order:orderreturnreason:save")
     public R save(@RequestBody OrderReturnReasonEntity orderReturnReason){
 		orderReturnReasonService.save(orderReturnReason);
 
@@ -69,7 +69,7 @@ public class OrderReturnReasonController {
      * 修改
      */
     @RequestMapping("/update")
-    @RequiresPermissions("order:orderreturnreason:update")
+    //@RequiresPermissions("order:orderreturnreason:update")
     public R update(@RequestBody OrderReturnReasonEntity orderReturnReason){
 		orderReturnReasonService.updateById(orderReturnReason);
 
@@ -80,7 +80,7 @@ public class OrderReturnReasonController {
      * 删除
      */
     @RequestMapping("/delete")
-    @RequiresPermissions("order:orderreturnreason:delete")
+    //@RequiresPermissions("order:orderreturnreason:delete")
     public R delete(@RequestBody Long[] ids){
 		orderReturnReasonService.removeByIds(Arrays.asList(ids));
 

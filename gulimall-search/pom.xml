@@ -27,6 +27,17 @@
         </dependency>
 
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+        </dependency>
+        <!-- 自动编译 Ctrl + Shift + f9 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
             <groupId>com.lif314.gulimall</groupId>
             <artifactId>gulimall-common</artifactId>
             <version>1.0-SNAPSHOT</version>

@@ -43,11 +43,17 @@ spring:
             - Path=/api/** # 默认前端项目都带上api前缀，指定路径断言
           filters:
             - RewritePath=/api/(?<segment>.*),/renren-fast/$\{segment}   # 重写路径
-        # gulimall.com
+        # feihong.com
         - id: gulimall_host_route
           uri: lb://gulimall-product
           predicates:
-            - Host=**.feihong.com,feihong.com
+            - Host=feihong.com
+        # search.feihong.com
+        - id: gulimall_search_route
+          uri: lb://gulimall-search
+          predicates:
+            - Host=search.feihong.com
+
 
 #  现在的验证码请求路径为，http://localhost:88/api/captcha.jpg?uuid=69c79f02-d15b-478a-8465-a07fd09001e6
 #  原始的验证码请求路径：http://localhost:8001/renren-fast/captcha.jpg?uuid=69c79f02-d15b-478a-8465-a07fd09001e6
