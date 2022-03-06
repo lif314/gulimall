@@ -9,6 +9,7 @@ import java.util.List;
 /**
  * 查询返回结果
  */
+@Data
 public class SearchResult {
 
     private List<SkuEsModel> products;// es检索到的所有商品信息
