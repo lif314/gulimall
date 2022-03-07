@@ -1078,8 +1078,10 @@
                                    'color: #fff; border-color: #e4393c; background: #e4393c;':'color: #333; border-color: #ccc; background: #fff;' }">
                                 价格[[${(!#strings.isEmpty(p) && #strings.startsWith(p,'skuPrice') &&
                                 #strings.endsWith(p,'desc'))?'↑':'↓' }]]</a>
+                            <!-- TODO 按照评论分和上架时间排序 -->
                             <a sort="hotScore" class="sort_a">评论分</a>
                             <a sort="hotScore" class="sort_a">上架时间</a>
+                            <!-- 商品价格区间 -->
                             <input id="skuPriceFrom" type="number"
                                    th:value="${#strings.isEmpty(priceRange)?'':#strings.substringBefore(priceRange,'_')}"
                                    style="width: 100px; margin-left: 30px">
@@ -2133,11 +2135,11 @@
 
 
     $("#showHasStock").change(function () {
-        alert($(this).prop("checked"));
+        // alert($(this).prop("checked"));
         if ($(this).prop("checked")) {
             location.href = replaceParamVal(location.href, "hasStock", 1, false);
         } else {
-            let re = eval('/(hasStock=)([^&]*)/gi');
+            let re = eval('/[?|&](hasStock=)([^&]*)/gi');
             location.href = (location.href + "").replace(re, "");
         }
         return false;

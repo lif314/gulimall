@@ -32,10 +32,14 @@ import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+import org.yaml.snakeyaml.util.UriEncoder;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -267,6 +271,8 @@ public class SearchServiceImpl implements SearchService {
         result.setBrands(brandVos);
 
 
+
+        Map<Long, String> attrMap = new HashMap<>();// 面包屑map数据源【属性名】
         // 4. 当前商品涉及的所有属性信息
         ParsedNested attr_agg = aggregations.get("attr_agg");
         List<SearchResult.AttrVo> attrVos = new ArrayList<>();
@@ -288,6 +294,11 @@ public class SearchServiceImpl implements SearchService {
             attrVo.setAttrValue(attr_values);
             // 加入集合
             attrVos.add(attrVo);
+
+            // 构建面包屑数据源
+            if (!CollectionUtils.isEmpty(param.getAttrs()) && !attrMap.containsKey(attrVo.getAttrId())) {
+                attrMap.put(attrVo.getAttrId(), attrVo.getAttrName());
+            }
         }
         result.setAttrs(attrVos);
 
@@ -309,7 +320,80 @@ public class SearchServiceImpl implements SearchService {
         }
         result.setPageNavs(pageNavs);
 
+
+        // 6.构建面包屑导航数据_属性
+        if (!CollectionUtils.isEmpty(param.getAttrs())) {
+            // 属性非空才需要面包屑功能
+            List<SearchResult.NavVo> navs = param.getAttrs().stream().map(attr -> {
+                // attr：15_海思
+                SearchResult.NavVo nav = new SearchResult.NavVo();
+                String[] arr = attr.split("_");
+                // 封装筛选属性ID集合【给前端判断哪些属性是筛选条件，从而隐藏显示属性栏，显示在面包屑中】
+                result.getAttrIds().add(Long.parseLong(arr[0]));
+                // 面包屑名字：属性名
+                nav.setNavName(attrMap.get(Long.parseLong(arr[0])));
+                // 面包屑值：属性值
+                nav.setNavValue(arr[1]);
+                // 设置跳转地址（将属性条件置空）【当取消面包屑上的条件时，跳转地址】
+                String replace = replaceQueryString(param, "attrs", attr);
+                nav.setLink("http://search.gulimall.com/list.html?" + replace);// 每一个属性都有自己对应的回退地址
+
+                return nav;
+            }).collect(Collectors.toList());
+            result.setNavs(navs);
+        }
+
+        // 7.构建面包屑导航数据_品牌
+        if (!CollectionUtils.isEmpty(param.getBrandId())) {
+            List<SearchResult.NavVo> navs = result.getNavs();
+            // 多个品牌ID封装成一级面包屑，所以这里只需要一个NavVo
+            SearchResult.NavVo nav = new SearchResult.NavVo();
+            // 面包屑名称直接使用品牌
+            nav.setNavName("品牌");
+            StringBuffer buffer = new StringBuffer();
+            String replace = "";
+            for (Long brandId : param.getBrandId()) {
+                // 多个brandId筛选条件汇总为一级面包屑，所以navValue拼接所有品牌名
+                buffer.append(brandMap.get(brandId)).append(";");
+                // 因为多个brandId汇总为一级面包屑，所以每一个brandId筛选条件都要删除
+                replace = replaceQueryString(param, "brandId", brandId.toString());
+            }
+            nav.setNavValue(buffer.toString());// 品牌拼接值
+            nav.setLink("http://search.gulimall.com/list.html?" + replace);// 回退品牌面包屑等于删除所有品牌条件
+            navs.add(nav);
+        }
+
+        // 构建面包屑导航数据_分类
+        if (param.getCatalog3Id() != null) {
+            List<SearchResult.NavVo> navs = result.getNavs();
+            SearchResult.NavVo nav = new SearchResult.NavVo();
+            nav.setNavName("分类");
+            nav.setNavValue(catalogName);// 分类名
+            StringBuffer buffer = new StringBuffer();
+//            String replace = replaceQueryString(param, "catalog3Id", param.getCatalog3Id().toString());
+//            nav.setLink("http://search.gulimall.com/list.html?" + replace);
+            navs.add(nav);
+        }
+
+
         return result;
     }
+
+    private String replaceQueryString(SearchParam param, String key, String value) {
+        // 解决编码问题，前端参数使用UTF-8编码了
+        String encode = null;
+        encode = UriEncoder.encode(value);
+//                try {
+//                    encode = URLEncoder.encode(attr, "UTF-8");// java将空格转义成了+号
+//                    encode = encode.replace("+", "%20");// 浏览器将空格转义成了%20，差异化处理，否则_queryString与encode匹配失败
+//                } catch (UnsupportedEncodingException e) {
+//                    e.printStackTrace();
+//                }
+        // TODO BUG，第一个参数不带&
+        // 替换掉当前查询条件，剩下的查询条件即是回退地址
+        String replace = param.get_queryString().replace("&" + key + "=" + encode, "");
+        return replace;
+    }
+
 
 }
