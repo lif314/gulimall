@@ -8,7 +8,6 @@ import com.lif314.gulimall.search.service.SearchService;
 import com.lif314.gulimall.search.vo.SearchParam;
 import com.lif314.gulimall.search.vo.SearchResult;
 import org.apache.commons.lang.StringUtils;
-import org.apache.lucene.search.TotalHits;
 import org.apache.lucene.search.join.ScoreMode;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
@@ -19,7 +18,6 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
-import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.nested.NestedAggregationBuilder;
@@ -55,19 +53,16 @@ public class SearchServiceImpl implements SearchService {
         // 1、准备检索请求
         SearchRequest searchRequest = buildSearchRequest(searchParam);
 
-
         SearchResult result = null;
         try {
             // 2、执行检索请求
             SearchResponse response = client.search(searchRequest, GulimallElasticSearchConfig.COMMON_OPTIONS);
-
             // 3、分析检索响应
             result = buildSearchResult(response, searchParam);
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        return null;
+        return result;
     }
 
     /**
@@ -116,23 +111,25 @@ public class SearchServiceImpl implements SearchService {
         }
 
         // 1.2 bool-filter 按照是否有库存进行查询 0无库存  1有库存 默认为1
-        boolQuery.filter(QueryBuilders.termsQuery("hasStock", param.getHasStock() == 1));
+        if(param.getHasStock() != null){
+            boolQuery.filter(QueryBuilders.termQuery("hasStock", param.getHasStock() == 1));
+        }
         // 1.2 bool-filter 按照价格区间 1_500/_500/500_
         if (StringUtils.isNotEmpty(param.getSkuPrice())) {
             // 1_500/_500/500_   组装range  gte/lte
             RangeQueryBuilder rangeQuery = QueryBuilders.rangeQuery("skuPrice");
             // 分割参数
-            String[] s = param.getSkuPrice().split("_");
-            if (s.length == 2) {
+            String[] prices = param.getSkuPrice().split("_");
+            if (prices.length == 2) {
                 // 区间查询
-                rangeQuery.gte(s[0]).lte(s[1]);
-            } else if (s.length == 1) {
+                rangeQuery.gte(prices[0]).lte(prices[1]);
+            } else if (prices.length == 1) {
                 if (param.getSkuPrice().startsWith("_")) {
                     // 小于
-                    rangeQuery.lte(s[0]);
+                    rangeQuery.lte(prices[0]);
                 } else {
                     // 大于
-                    rangeQuery.gte(s[0]);
+                    rangeQuery.gte(prices[0]);
                 }
             }
             boolQuery.filter(rangeQuery);
@@ -176,28 +173,28 @@ public class SearchServiceImpl implements SearchService {
          * 聚合分析
          */
         // 3.1 品牌聚合
-        TermsAggregationBuilder brand_agg = AggregationBuilders.terms("brand_agg");
-        brand_agg.field("brandId").size(50);
+        TermsAggregationBuilder brand_agg = AggregationBuilders.terms("brand_agg").field("brandId").size(50);
         // 品牌聚合子聚合
         brand_agg.subAggregation(AggregationBuilders.terms("brand_name_agg").field("brandName").size(1));
         brand_agg.subAggregation(AggregationBuilders.terms("brand_img_agg").field("brandImg").size(1));
         sourceBuilder.aggregation(brand_agg);
 
         // 3.2 分类聚合
-        TermsAggregationBuilder catalog_agg = AggregationBuilders.terms("catalog_agg").field("catalogId").size(2);
+        TermsAggregationBuilder catalog_agg = AggregationBuilders.terms("catalog_agg").field("catalogId").size(20);
         catalog_agg.subAggregation(AggregationBuilders.terms("catalog_name_agg").field("catalogName").size(1));
         sourceBuilder.aggregation(catalog_agg);
 
         // 3.3 属性聚合
         NestedAggregationBuilder attr_agg = AggregationBuilders.nested("attr_agg", "attrs");
-        NestedAggregationBuilder attr_id_agg = attr_agg.subAggregation(AggregationBuilders.terms("attr_id_agg").field("attrs.attrId"));
+        TermsAggregationBuilder attr_id_agg = AggregationBuilders.terms("attr_id_agg").field("attrs.attrId").size(50);
+        attr_agg.subAggregation(attr_id_agg);
         // 聚合分析出当前attr_id对应的属性名字和对应的所有可能属性值attrValues
         attr_id_agg.subAggregation(AggregationBuilders.terms("attr_name_agg").field("attrs.attrName").size(1));
         attr_id_agg.subAggregation(AggregationBuilders.terms("attr_value_agg").field("attrs.attrValue").size(50));
-        attr_agg.subAggregation(attr_id_agg);
         sourceBuilder.aggregation(attr_agg);
 
-        return new SearchRequest(new String[]{EsConstant.PRODUCT_INDEX}, sourceBuilder);
+        SearchRequest searchRequest = new SearchRequest(new String[]{EsConstant.PRODUCT_INDEX}, sourceBuilder);
+        return  searchRequest;
     }
 
     /**
@@ -230,11 +227,12 @@ public class SearchServiceImpl implements SearchService {
 
         // 所有聚合信息
         Aggregations aggregations = response.getAggregations();
+
+
         // 2. 当前商品涉及的分类信息
         ParsedLongTerms catalog_agg = aggregations.get("catalog_agg");
-        List<? extends Terms.Bucket> buckets = catalog_agg.getBuckets();
         List<SearchResult.CatalogVo> catalogVos  =  new ArrayList<>();
-        for (Terms.Bucket bucket : buckets) {
+        for (Terms.Bucket bucket : catalog_agg.getBuckets()) {
             // 获取分类id和名字
             SearchResult.CatalogVo catalogVo = new SearchResult.CatalogVo();
             catalogVo.setCatalogId(bucket.getKeyAsNumber().longValue());
@@ -272,7 +270,7 @@ public class SearchServiceImpl implements SearchService {
         // 4. 当前商品涉及的所有属性信息
         ParsedNested attr_agg = aggregations.get("attr_agg");
         List<SearchResult.AttrVo> attrVos = new ArrayList<>();
-        ParsedLongTerms attr_id_agg = attr_agg.getAggregations().get("attr_id_agg ");
+        ParsedLongTerms attr_id_agg = attr_agg.getAggregations().get("attr_id_agg");
         for (Terms.Bucket bucket : attr_id_agg.getBuckets()) {
             SearchResult.AttrVo attrVo =  new SearchResult.AttrVo();
             // 属性id
@@ -303,6 +301,13 @@ public class SearchServiceImpl implements SearchService {
         // 5.3 总页码
         int totalPages = (totalHits%EsConstant.PRODUCT_PAGESIZE == 0? (int) totalHits/EsConstant.PRODUCT_PAGESIZE : ((int)totalHits/EsConstant.PRODUCT_PAGESIZE + 1));
         result.setTotalPages(totalPages);
+        // 5.4 导航页码
+        List<Integer> pageNavs = new ArrayList<>();
+        for(int i = 1; i <= totalPages; i++ )
+        {
+            pageNavs.add(i);
+        }
+        result.setPageNavs(pageNavs);
 
         return result;
     }
