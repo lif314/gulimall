@@ -13,5 +13,27 @@
         <result property="catelogId" column="catelog_id"/>
     </resultMap>
 
+    <!--只要有嵌套属性就要封装自定义结果集-->
+    <resultMap id="spuAttrGroup" type="com.lif314.gulimall.product.vo.SkuItemVo$SpuItemAttrGroupVo">
+        <result property="groupName" column="attr_group_name"/>
+        <collection property="attrs" ofType="com.lif314.gulimall.product.vo.SkuItemVo$AttrVo">
+            <result property="attrId" column="attr_id"></result>
+            <result property="attrName" column="attr_name"></result>
+            <result property="attrValue" column="attr_value"></result>
+        </collection>
+    </resultMap>
 
+    <select id="getAttrGroupWithAttrsBySpuId" resultMap="spuAttrGroup">
+        SELECT pav.spu_id,
+               ag.attr_group_id,
+               ag.attr_group_name,
+               pav.attr_id,
+               pav.attr_name,
+               pav.attr_value
+        FROM pms_product_attr_value pav
+                 LEFT JOIN pms_attr_attrgroup_relation aar ON pav.attr_id = aar.attr_id
+                 LEFT JOIN pms_attr_group ag ON aar.attr_group_id = ag.attr_group_id
+        WHERE pav.spu_id = #{spuId}
+          AND ag.catelog_id = #{catalogId}
+    </select>
 </mapper>

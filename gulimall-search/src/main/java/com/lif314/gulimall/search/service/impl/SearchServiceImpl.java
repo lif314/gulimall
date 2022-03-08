@@ -236,6 +236,7 @@ public class SearchServiceImpl implements SearchService {
         // 2. 当前商品涉及的分类信息
         ParsedLongTerms catalog_agg = aggregations.get("catalog_agg");
         List<SearchResult.CatalogVo> catalogVos  =  new ArrayList<>();
+        String catalogName = null;// 面包屑map数据源【分类】
         for (Terms.Bucket bucket : catalog_agg.getBuckets()) {
             // 获取分类id和名字
             SearchResult.CatalogVo catalogVo = new SearchResult.CatalogVo();
@@ -245,12 +246,17 @@ public class SearchServiceImpl implements SearchService {
             String catalog_name = catalog_name_agg.getBuckets().get(0).getKeyAsString();
             catalogVo.setCatalogName(catalog_name);
             catalogVos.add(catalogVo);
+            // 构建面包屑数据源
+            if (catalogVo.getCatalogId().equals(param.getCatalog3Id())) {
+                catalogName = catalogVo.getCatalogName();
+            }
         }
         result.setCatalogs(catalogVos);
 
         // 3. 当前所有商品涉及到的品牌信息
         ParsedLongTerms brand_agg = aggregations.get("brand_agg");
         List<SearchResult.BrandVo> brandVos = new ArrayList<>();
+        Map<Long, String> brandMap = new HashMap<>();// 面包屑map数据源【品牌】
         for (Terms.Bucket bucket : brand_agg.getBuckets()) {
             // 获取品牌的id 名字  图片
             SearchResult.BrandVo brandVo = new SearchResult.BrandVo();
@@ -267,6 +273,11 @@ public class SearchServiceImpl implements SearchService {
             brandVo.setBrandImg(brandImg);
             brandVo.setBrandName(brandName);
             brandVos.add(brandVo);
+
+            // 构建面包屑数据源
+            if (!CollectionUtils.isEmpty(param.getBrandId()) ) {
+                brandMap.put(brandVo.getBrandId(), brandVo.getBrandName());
+            }
         }
         result.setBrands(brandVos);
 
@@ -321,13 +332,14 @@ public class SearchServiceImpl implements SearchService {
         result.setPageNavs(pageNavs);
 
 
-        // 6.构建面包屑导航数据_属性
+        //  TODO 6. 构建面包屑导航数据_属性
+        List<SearchResult.NavVo> navs = new ArrayList<>();
         if (!CollectionUtils.isEmpty(param.getAttrs())) {
             // 属性非空才需要面包屑功能
-            List<SearchResult.NavVo> navs = param.getAttrs().stream().map(attr -> {
-                // attr：15_海思
+            navs = param.getAttrs().stream().map(attr -> {
+                // attr：15_海思 分析ttrs传过来的参数值
                 SearchResult.NavVo nav = new SearchResult.NavVo();
-                String[] arr = attr.split("_");
+                String[] arr = attr.split("_"); // id_值
                 // 封装筛选属性ID集合【给前端判断哪些属性是筛选条件，从而隐藏显示属性栏，显示在面包屑中】
                 result.getAttrIds().add(Long.parseLong(arr[0]));
                 // 面包屑名字：属性名
@@ -336,16 +348,14 @@ public class SearchServiceImpl implements SearchService {
                 nav.setNavValue(arr[1]);
                 // 设置跳转地址（将属性条件置空）【当取消面包屑上的条件时，跳转地址】
                 String replace = replaceQueryString(param, "attrs", attr);
-                nav.setLink("http://search.gulimall.com/list.html?" + replace);// 每一个属性都有自己对应的回退地址
+                nav.setLink("http://search.feihong.com/search.html?" + replace);// 每一个属性都有自己对应的回退地址
 
                 return nav;
             }).collect(Collectors.toList());
-            result.setNavs(navs);
         }
 
         // 7.构建面包屑导航数据_品牌
         if (!CollectionUtils.isEmpty(param.getBrandId())) {
-            List<SearchResult.NavVo> navs = result.getNavs();
             // 多个品牌ID封装成一级面包屑，所以这里只需要一个NavVo
             SearchResult.NavVo nav = new SearchResult.NavVo();
             // 面包屑名称直接使用品牌
@@ -359,22 +369,27 @@ public class SearchServiceImpl implements SearchService {
                 replace = replaceQueryString(param, "brandId", brandId.toString());
             }
             nav.setNavValue(buffer.toString());// 品牌拼接值
-            nav.setLink("http://search.gulimall.com/list.html?" + replace);// 回退品牌面包屑等于删除所有品牌条件
+            nav.setLink("http://search.feihong.com/search.html?" + replace);// 回退品牌面包屑等于删除所有品牌条件
+
             navs.add(nav);
         }
 
+        // TODO 分类不需要导航取消
         // 构建面包屑导航数据_分类
-        if (param.getCatalog3Id() != null) {
-            List<SearchResult.NavVo> navs = result.getNavs();
-            SearchResult.NavVo nav = new SearchResult.NavVo();
-            nav.setNavName("分类");
-            nav.setNavValue(catalogName);// 分类名
-            StringBuffer buffer = new StringBuffer();
-//            String replace = replaceQueryString(param, "catalog3Id", param.getCatalog3Id().toString());
-//            nav.setLink("http://search.gulimall.com/list.html?" + replace);
-            navs.add(nav);
-        }
+//        if (param.getCatalog3Id() != null) {
+//            SearchResult.NavVo nav = new SearchResult.NavVo();
+//            nav.setNavName("分类");
+//            nav.setNavValue(catalogName);// 分类名
+//            StringBuffer buffer = new StringBuffer();
+////            String replace = replaceQueryString(param, "catalog3Id", param.getCatalog3Id().toString());
+////            nav.setLink("http://search.gulimall.com/list.html?" + replace);
+//
+//            navs.add(nav);
+//        }
 
+
+        // 设置面包屑导航
+        result.setNavs(navs);
 
         return result;
     }

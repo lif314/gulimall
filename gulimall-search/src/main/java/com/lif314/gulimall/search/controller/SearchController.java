@@ -8,6 +8,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import javax.servlet.http.HttpServletRequest;
+
 @Controller  // 页面跳转
 public class SearchController {
 
@@ -21,7 +23,11 @@ public class SearchController {
      */
     // http://search.feihong.com/search.html?catalog3Id=165
     @GetMapping("/search.html")  // 点击分类跳转到搜索页面
-    public String  listPage(SearchParam searchParam, Model model) {
+    public String  listPage(SearchParam searchParam, Model model, HttpServletRequest request) {
+       // 查询条件
+        String queryString = request.getQueryString();
+        searchParam.set_queryString(queryString);
+
         SearchResult result = searchService.search(searchParam);
 //        System.out.println("result：" + result);
         model.addAttribute("result", result);

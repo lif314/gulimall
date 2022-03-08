@@ -47,7 +47,7 @@ spring:
         - id: gulimall_host_route
           uri: lb://gulimall-product
           predicates:
-            - Host=feihong.com
+            - Host=feihong.com, item.feihong.com
         # search.feihong.com
         - id: gulimall_search_route
           uri: lb://gulimall-search

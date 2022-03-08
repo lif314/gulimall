@@ -853,8 +853,7 @@
                 </div>
 
                 <!--其它的所有需要展示的属性-->
-                <div class="JD_pre" th:each="attr:${result.attrs}"
-                     th:if="${!#lists.contains(result.attrIds, attr.attrId)}">
+                <div class="JD_pre" th:each="attr:${result.attrs}" th:if="${!#lists.contains(result.attrIds, attr.attrId)}">
                     <div class="sl_key">
                         <span th:text="${attr.attrName}">屏幕尺寸：</span>
                     </div>

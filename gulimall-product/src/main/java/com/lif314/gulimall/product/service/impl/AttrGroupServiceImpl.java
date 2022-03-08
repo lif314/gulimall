@@ -3,6 +3,7 @@ package com.lif314.gulimall.product.service.impl;
 import com.lif314.gulimall.product.entity.AttrEntity;
 import com.lif314.gulimall.product.service.AttrService;
 import com.lif314.gulimall.product.vo.AttrGroupWithAttrsVo;
+import com.lif314.gulimall.product.vo.SkuItemVo;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -95,5 +96,19 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
 
         return collect;
     }
+
+    /**
+     * 查出当前spuId对应的所有属性的分组信息以及当前分组下所有属性对应的值
+     * @param spuId spu id
+     * @return 分组信息与分组下的属性信息
+     */
+    @Override
+    public List<SkuItemVo.SpuItemAttrGroupVo> getAttrGroupWithAttrsBySpuId(Long spuId,Long catalogId) {
+        // 1.通过spuId查询所有属性值（pms_product_attr_value）
+        // 2.通过attrId关联所有属性分组（pms_attr_attrgroup_relation）
+        // 3.通过attrGroupId + catalogId关联属性分组名称（pms_attr_group）
+        return baseMapper.getAttrGroupWithAttrsBySpuId(spuId, catalogId);
+    }
+
 
 }

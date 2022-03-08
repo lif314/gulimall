@@ -38,14 +38,12 @@ public class SearchResult {
 
     // ============================以上是要返回的数据====================================
 
-    // 面包屑导航数据
-    private List<NavVo> navs = new ArrayList<>();
-
     // 封装筛选条件中的属性id集合【用于面包屑，选择属性后出现在面包屑中，下面的属性栏则隐藏】
     // 该字段是提供前端用的
     private List<Long> attrIds = new ArrayList<>();
 
-
+    // 面包屑导航数据
+    private List<NavVo> navs = new ArrayList<>();
     /**
      * 面包屑导航VO
      */
