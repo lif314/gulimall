@@ -14,16 +14,16 @@
     </resultMap>
 
     <!--只要有嵌套属性就要封装自定义结果集-->
-    <resultMap id="spuAttrGroup" type="com.lif314.gulimall.product.vo.SkuItemVo$SpuItemAttrGroupVo">
+    <resultMap id="spuItemAttrGroupVo" type="com.lif314.gulimall.product.vo.SpuItemAttrGroupVo">
         <result property="groupName" column="attr_group_name"/>
-        <collection property="attrs" ofType="com.lif314.gulimall.product.vo.SkuItemVo$AttrVo">
+        <collection property="attrs" ofType="com.lif314.gulimall.product.saveVo.Attr">
             <result property="attrId" column="attr_id"></result>
             <result property="attrName" column="attr_name"></result>
             <result property="attrValue" column="attr_value"></result>
         </collection>
     </resultMap>
 
-    <select id="getAttrGroupWithAttrsBySpuId" resultMap="spuAttrGroup">
+    <select id="getAttrGroupWithAttrsBySpuId" resultMap="spuItemAttrGroupVo">
         SELECT pav.spu_id,
                ag.attr_group_id,
                ag.attr_group_name,

@@ -1,28 +1,25 @@
 package com.lif314.gulimall.product.service.impl;
 
-import com.lif314.gulimall.product.entity.AttrEntity;
-import com.lif314.gulimall.product.service.AttrService;
-import com.lif314.gulimall.product.vo.AttrGroupWithAttrsVo;
-import com.lif314.gulimall.product.vo.SkuItemVo;
-import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lif314.common.utils.PageUtils;
 import com.lif314.common.utils.Query;
-
 import com.lif314.gulimall.product.dao.AttrGroupDao;
+import com.lif314.gulimall.product.entity.AttrEntity;
 import com.lif314.gulimall.product.entity.AttrGroupEntity;
 import com.lif314.gulimall.product.service.AttrGroupService;
+import com.lif314.gulimall.product.service.AttrService;
+import com.lif314.gulimall.product.vo.AttrGroupWithAttrsVo;
+import com.lif314.gulimall.product.vo.SpuItemAttrGroupVo;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 
 @Service("attrGroupService")
@@ -103,7 +100,7 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
      * @return 分组信息与分组下的属性信息
      */
     @Override
-    public List<SkuItemVo.SpuItemAttrGroupVo> getAttrGroupWithAttrsBySpuId(Long spuId,Long catalogId) {
+    public List<SpuItemAttrGroupVo> getAttrGroupWithAttrsBySpuId(Long spuId, Long catalogId) {
         // 1.通过spuId查询所有属性值（pms_product_attr_value）
         // 2.通过attrId关联所有属性分组（pms_attr_attrgroup_relation）
         // 3.通过attrGroupId + catalogId关联属性分组名称（pms_attr_group）

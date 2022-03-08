@@ -1,11 +1,11 @@
 package com.lif314.gulimall.product;
 
 //import com.aliyun.oss.*;
+
 import com.lif314.gulimall.product.dao.AttrGroupDao;
 import com.lif314.gulimall.product.entity.BrandEntity;
-import com.lif314.gulimall.product.service.AttrGroupService;
 import com.lif314.gulimall.product.service.BrandService;
-import com.lif314.gulimall.product.vo.SkuItemVo;
+import com.lif314.gulimall.product.vo.SpuItemAttrGroupVo;
 import org.junit.jupiter.api.Test;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +45,7 @@ class GulimallProductApplicationTests {
     AttrGroupDao attrGroupDao;
     @Test
     public void testSkuDetails(){
-        List<SkuItemVo.SpuItemAttrGroupVo> attrGroupWithAttrsBySpuId = attrGroupDao.getAttrGroupWithAttrsBySpuId(13L, 225L);
+        List<SpuItemAttrGroupVo> attrGroupWithAttrsBySpuId = attrGroupDao.getAttrGroupWithAttrsBySpuId(13L, 225L);
         System.out.println(attrGroupWithAttrsBySpuId.toString());
     }
 

@@ -21,7 +21,7 @@ public class SkuItemVo {
      * 5、spu规格与包装【参数信息】
      */
 
-    //1、sku基本信息（pms_sku_info）【默认图片、标题、副标题、价格】
+    // 1、sku基本信息（pms_sku_info）【默认图片、标题、副标题、价格】
     private SkuInfoEntity info;
 
     private boolean hasStock = true;// 是否有货
@@ -33,40 +33,8 @@ public class SkuItemVo {
     private List<SkuItemSaleAttrVo> saleAttr;
 
     //4、spu商品介绍（pms_spu_info_desc）共享SPU信息 【描述图片】
-    private SpuInfoDescEntity desc;
+    private SpuInfoDescEntity desc; // 图片URL以,分割
 
-    //5、spu规格参数信息（pms_attr）【以组为单位】销售属性对应的值情况
+    //5、spu规格参数信息(规格与包装)（pms_attr）【以组为单位】销售属性对应的值情况
     private List<SpuItemAttrGroupVo> groupAttrs;
-
-
-    @Data
-    public static class SkuItemSaleAttrVo {
-        /**
-         * 1.销售属性对应1个attrName
-         * 2.销售属性对应n个attrValue
-         * 3.n个sku包含当前销售属性（所以前端根据skuId交集区分销售属性的组合【笛卡尔积】）
-         */
-        private Long attrId;
-        private String attrName;
-        private String attrValues;
-
-    }
-
-
-    @Data
-    public static class SpuItemAttrGroupVo {
-        // 分组信息
-        private String groupName;
-        private List<AttrVo> attrs;
-    }
-
-    @Data
-    public static class AttrVo {
-        // 分组下的属性信息
-        private Long attrId;
-        private String attrName;
-        private String attrValue;
-    }
-
-
 }

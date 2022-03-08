@@ -5,6 +5,7 @@ import com.lif314.common.utils.PageUtils;
 import com.lif314.gulimall.product.entity.AttrGroupEntity;
 import com.lif314.gulimall.product.vo.AttrGroupWithAttrsVo;
 import com.lif314.gulimall.product.vo.SkuItemVo;
+import com.lif314.gulimall.product.vo.SpuItemAttrGroupVo;
 
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,6 @@ public interface AttrGroupService extends IService<AttrGroupEntity> {
     List<AttrGroupWithAttrsVo> getAttrGroupWithAttrsByCatelogId(Long catelogId);
 
 
-    List<SkuItemVo.SpuItemAttrGroupVo> getAttrGroupWithAttrsBySpuId(Long spuId, Long catalogId);
+    List<SpuItemAttrGroupVo> getAttrGroupWithAttrsBySpuId(Long spuId, Long catalogId);
 }
 
