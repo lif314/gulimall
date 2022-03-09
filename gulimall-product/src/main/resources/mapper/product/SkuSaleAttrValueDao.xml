@@ -13,16 +13,27 @@
         <result property="attrSort" column="attr_sort"/>
     </resultMap>
 
+
     <!-- 分析当前spu有多少个sku，所有sku涉及到的属性组合   -->
-    <select id="getSaleAttrsBySpuId" resultType="com.lif314.gulimall.product.vo.SkuItemSaleAttrVo">
+    <resultMap id="SkuItemSaleAttrVo" type="com.lif314.gulimall.product.vo.SkuItemSaleAttrVo">
+        <result column="attr_id" property="attrId"></result>
+        <result column="attr_name" property="attrName"></result>
+        <collection property="attrValues" ofType="com.lif314.gulimall.product.vo.AttrValueWithSkuIdVo">
+            <result column="attr_value" property="attrValue"></result>
+            <result column="sku_ids" property="skuIds"></result>
+        </collection>
+    </resultMap>
+    <select id="getSaleAttrsBySpuId" resultMap="SkuItemSaleAttrVo">
         SELECT ssav.attr_id                           attr_id,
                ssav.attr_name                         attr_name,
-               group_concat(DISTINCT ssav.attr_value) attr_values
+               ssav.attr_value,
+               group_concat(DISTINCT info.sku_id)     sku_ids
         FROM pms_sku_info info
                  LEFT JOIN pms_sku_sale_attr_value ssav ON ssav.sku_id = info.sku_id
         WHERE info.spu_id = #{spuId}
         GROUP BY ssav.attr_id,
-                 ssav.attr_name
+                 ssav.attr_name,
+                 ssav.attr_value
     </select>
 
 </mapper>

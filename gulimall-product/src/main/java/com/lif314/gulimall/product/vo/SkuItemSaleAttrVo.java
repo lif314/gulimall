@@ -2,6 +2,8 @@ package com.lif314.gulimall.product.vo;
 
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * 销售属性的Vo
  */
@@ -15,6 +17,5 @@ public class SkuItemSaleAttrVo {
      */
     private Long attrId;
     private String attrName;
-    private String attrValues; // 以,分割
-
+    private List<AttrValueWithSkuIdVo> attrValues;
 }

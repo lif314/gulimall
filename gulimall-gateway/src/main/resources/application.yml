@@ -53,6 +53,11 @@ spring:
           uri: lb://gulimall-search
           predicates:
             - Host=search.feihong.com
+        # auth.feihong.com
+        - id: gulimall_auth_route
+          uri: lb://gulimall-auth-server
+          predicates:
+            - Host=auth.feihong.com
 
 #  现在的验证码请求路径为，http://localhost:88/api/captcha.jpg?uuid=69c79f02-d15b-478a-8465-a07fd09001e6
 #  原始的验证码请求路径：http://localhost:8001/renren-fast/captcha.jpg?uuid=69c79f02-d15b-478a-8465-a07fd09001e6
