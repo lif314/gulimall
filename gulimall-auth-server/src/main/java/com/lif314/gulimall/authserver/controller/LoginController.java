@@ -1,10 +1,13 @@
 package com.lif314.gulimall.authserver.controller;
 
+import com.alibaba.fastjson.TypeReference;
 import com.lif314.common.constant.AuthServerConstant;
 import com.lif314.common.exception.BizCodeEnum;
 import com.lif314.common.to.SmsTo;
 import com.lif314.common.utils.R;
+import com.lif314.gulimall.authserver.feign.MemberFeignService;
 import com.lif314.gulimall.authserver.feign.ThirdPartySerrvice;
+import com.lif314.gulimall.authserver.vo.UserLoginVo;
 import com.lif314.gulimall.authserver.vo.UserRegisterVo;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +37,9 @@ public class LoginController {
 
     @Autowired
     StringRedisTemplate redisTemplate;
+
+    @Autowired
+    MemberFeignService memberFeignService;
 
     @ResponseBody // 返回JSON数据
     @GetMapping("/sms/sendcode")
@@ -101,20 +107,26 @@ public class LoginController {
         if (StringUtils.isNotEmpty(redisCode)) {
             String realCode = redisCode.split("_")[0];
             if (realCode.equals(code)) {
-                // TODO 验证成功 -- 调用远程服务注册
+                // 验证码通过，删除验证码  -- 令牌机制
+                redisTemplate.delete(AuthServerConstant.SMS_CODE_CACHE_PREFIX + vo.getPhone());
 
+                // TODO 验证成功 -- 调用远程服务注册
                 // 3.调用远程服务进行注册
                 // 需要判断用户名和手机号不能是已经存在的
+                R r = memberFeignService.register(vo);
+                if(r.getCode() != 0){
+                    // 调用失败, 返回注册页
+                    Map<String, String> errors = new HashMap<>();
+                    errors.put("msg", r.get("msg").toString());
+                    redirectAttributes.addFlashAttribute("errors", errors);
+                    return "redirect:http://auth.feihong.com/register.html";
+                }
+                // 注册成功，回到登录页面
+                return "redirect:http://auth.feihong.com/login.html";
 
                 // 重定向：注册成功后回到首页/回到登录页
                 // registry.addViewController("/login").setViewName("login");
                 // return "redirect:http://auth.feihong.com/login";
-
-
-                // 注册结束后，删除验证码  -- 令牌机制
-                redisTemplate.delete(AuthServerConstant.SMS_CODE_CACHE_PREFIX + vo.getPhone());
-                // 注册成功，回到登录页面
-                return "redirect:/login.html";
             } else {
                 // 验证码错误
                 Map<String, String> errors = new HashMap<>();
@@ -130,5 +142,23 @@ public class LoginController {
             return "redirect:http://auth.feihong.com/register.html";
         }
     }
+
+
+    @PostMapping("/login")
+    public String login(UserLoginVo vo, RedirectAttributes redirectAttributes){
+        // 调用远程登录
+        R r = memberFeignService.login(vo);
+        if(r.getCode() == 0) {
+            // 登录成功，回到首页
+            return "redirect:http://feihong.com";
+        }else{
+            // 登录失败
+            Map<String, String> errors = new HashMap<>();
+            errors.put("msg", r.get("msg").toString());
+            redirectAttributes.addFlashAttribute("errors", errors);
+            return "redirect:http://auth.feihong.com/login.html";
+        }
+    }
+
 
 }

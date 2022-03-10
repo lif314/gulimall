@@ -27,4 +27,7 @@
     <select id="getDefaultMemberLevel" resultType="com.lif314.gulimall.member.entity.MemberLevelEntity">
         SELECT * FROM `ums_member_level` WHERE default_status=1
     </select>
+    <select id="selectByNameOrPhone" resultType="com.lif314.gulimall.member.entity.MemberEntity">
+        SELECT * FROM `ums_member` WHERE username=#{loginacct} OR mobile=#{loginacct}
+    </select>
 </mapper>

@@ -4,6 +4,7 @@ import com.lif314.gulimall.member.entity.MemberEntity;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.lif314.gulimall.member.entity.MemberLevelEntity;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * 会员
@@ -16,4 +17,6 @@ import org.apache.ibatis.annotations.Mapper;
 public interface MemberDao extends BaseMapper<MemberEntity> {
 
     MemberLevelEntity getDefaultMemberLevel();
+
+    MemberEntity selectByNameOrPhone(@Param("loginacct") String loginacct);
 }
