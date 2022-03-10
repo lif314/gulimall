@@ -18,8 +18,8 @@ public class MyWebConfig implements WebMvcConfigurer {
          *         return "login";
          *     }
          */
-        registry.addViewController("/login").setViewName("login");
-        registry.addViewController("/register").setViewName("register");
+        registry.addViewController("/login.html").setViewName("login");
+        registry.addViewController("/register.html").setViewName("register");
 
     }
 }

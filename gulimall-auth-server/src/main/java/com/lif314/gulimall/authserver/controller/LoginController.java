@@ -5,17 +5,24 @@ import com.lif314.common.exception.BizCodeEnum;
 import com.lif314.common.to.SmsTo;
 import com.lif314.common.utils.R;
 import com.lif314.gulimall.authserver.feign.ThirdPartySerrvice;
+import com.lif314.gulimall.authserver.vo.UserRegisterVo;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.validation.Valid;
 import java.security.SecureRandom;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @RestController
 public class LoginController {
@@ -66,4 +73,37 @@ public class LoginController {
         thirdPartySerrvice.sendCode(smsTo);
         return R.ok();
     }
+
+    /**
+     * TODO  重定向携带数据，利用session原理，将数据放在session中
+     * RedirectAttributes:模拟重定向发送数
+     */
+    @PostMapping("/register")
+    public String register(@Valid UserRegisterVo vo, BindingResult bindingResult, RedirectAttributes redirectAttributes){
+        // 1. 进行数据校验
+        if(bindingResult.hasErrors()){
+            Map<String, String> errors = bindingResult.getFieldErrors().stream().collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage));
+//            model.addAttribute("errors", errors);
+            // 重定向携带数据
+            redirectAttributes.addFlashAttribute("errors", errors);
+            // 如果注册失败，重新注册页
+            // 防止表单重复提交 -- 转发
+//            return "register"; // 会进行拼串
+            // 使用重定向视图 -- 必须使用完整域名
+            return "redirect:http://auth.feihong.com/register.html";  // 转发不进行拼串
+        }
+        // POST not supported
+        // 用户注册-->/register.html[post]--> 转发/register.html 路径映射只能使用get方式访问
+
+        // 调用远程服务进行注册
+
+
+        // 2. 用户名和手机号不能是已经存在的
+
+        // 重定向：注册成功后回到首页/回到登录页
+        // registry.addViewController("/login").setViewName("login");
+        // return "redirect:http://auth.feihong.com/login";
+        return "redirect:/login.html";
+    }
+
 }
