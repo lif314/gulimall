@@ -5,12 +5,9 @@ import java.util.Map;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
 import com.lif314.gulimall.member.feign.CouponFeignService;
+import com.lif314.gulimall.member.vo.MemberRegisterVo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.lif314.gulimall.member.entity.MemberEntity;
 import com.lif314.gulimall.member.service.MemberService;
@@ -44,6 +41,21 @@ public class MemberController {
         return R.ok().put("member", memberEntity).put("coupons", membercoupons.get("coupons"));
     }
 
+
+    /**
+     * 注册用户
+     *
+     * 接受json数据
+     */
+    @PostMapping("/register")
+    public R register(@RequestBody MemberRegisterVo vo){
+        try{
+            memberService.register(vo);
+        }catch (Exception e){
+
+        }
+        return R.ok();
+    }
 
     /**
      * 列表

@@ -9,10 +9,9 @@ import com.lif314.gulimall.authserver.vo.UserRegisterVo;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.ui.Model;
+import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -24,7 +23,7 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-@RestController
+@Controller  // 页面跳转， @RestController会将return结果放在body中，导致无法实现页面提交和跳转
 public class LoginController {
 
     /**
@@ -79,9 +78,9 @@ public class LoginController {
      * RedirectAttributes:模拟重定向发送数
      */
     @PostMapping("/register")
-    public String register(@Valid UserRegisterVo vo, BindingResult bindingResult, RedirectAttributes redirectAttributes){
+    public String register(@Valid UserRegisterVo vo, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
         // 1. 进行数据校验
-        if(bindingResult.hasErrors()){
+        if (bindingResult.hasErrors()) {
             Map<String, String> errors = bindingResult.getFieldErrors().stream().collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage));
 //            model.addAttribute("errors", errors);
             // 重定向携带数据
@@ -91,19 +90,45 @@ public class LoginController {
 //            return "register"; // 会进行拼串
             // 使用重定向视图 -- 必须使用完整域名
             return "redirect:http://auth.feihong.com/register.html";  // 转发不进行拼串
+
+            // POST not supported
+            // 用户注册-->/register.html[post]--> 转发/register.html 路径映射只能使用get方式访
         }
-        // POST not supported
-        // 用户注册-->/register.html[post]--> 转发/register.html 路径映射只能使用get方式访问
 
-        // 调用远程服务进行注册
+        // 2. 校验验证码
+        String code = vo.getCode();
+        String redisCode = redisTemplate.opsForValue().get(AuthServerConstant.SMS_CODE_CACHE_PREFIX + vo.getPhone());
+        if (StringUtils.isNotEmpty(redisCode)) {
+            String realCode = redisCode.split("_")[0];
+            if (realCode.equals(code)) {
+                // TODO 验证成功 -- 调用远程服务注册
+
+                // 3.调用远程服务进行注册
+                // 需要判断用户名和手机号不能是已经存在的
+
+                // 重定向：注册成功后回到首页/回到登录页
+                // registry.addViewController("/login").setViewName("login");
+                // return "redirect:http://auth.feihong.com/login";
 
 
-        // 2. 用户名和手机号不能是已经存在的
-
-        // 重定向：注册成功后回到首页/回到登录页
-        // registry.addViewController("/login").setViewName("login");
-        // return "redirect:http://auth.feihong.com/login";
-        return "redirect:/login.html";
+                // 注册结束后，删除验证码  -- 令牌机制
+                redisTemplate.delete(AuthServerConstant.SMS_CODE_CACHE_PREFIX + vo.getPhone());
+                // 注册成功，回到登录页面
+                return "redirect:/login.html";
+            } else {
+                // 验证码错误
+                Map<String, String> errors = new HashMap<>();
+                errors.put("code", "验证码错误");
+                redirectAttributes.addFlashAttribute("errors", errors);
+                return "redirect:http://auth.feihong.com/register.html";
+            }
+        } else {
+            // 验证码过期
+            Map<String, String> errors = new HashMap<>();
+            errors.put("code", "验证码已过期");
+            redirectAttributes.addFlashAttribute("errors", errors);
+            return "redirect:http://auth.feihong.com/register.html";
+        }
     }
 
 }
