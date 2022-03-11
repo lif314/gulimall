@@ -23,6 +23,8 @@
         <result property="growth" column="growth"/>
         <result property="status" column="status"/>
         <result property="createTime" column="create_time"/>
+        <result property="socialUid" column="social_uid"/>
+        <result property="socialType" column="social_type"/>
     </resultMap>
     <select id="getDefaultMemberLevel" resultType="com.lif314.gulimall.member.entity.MemberLevelEntity">
         SELECT * FROM `ums_member_level` WHERE default_status=1

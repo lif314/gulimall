@@ -34,7 +34,7 @@ import com.lif314.gulimall.product.service.AttrService;
 import org.springframework.transaction.annotation.Transactional;
 
 
-@Service("attrService")
+@Service("AttrService")
 public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements AttrService {
 
 

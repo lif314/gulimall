@@ -1,4 +1,4 @@
-package com.lif314.gulimall.thirdparty.utils;
+package com.lif314.common.utils;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpResponse;

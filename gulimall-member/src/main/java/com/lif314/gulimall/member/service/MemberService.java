@@ -7,6 +7,7 @@ import com.lif314.gulimall.member.exception.PhoneExistException;
 import com.lif314.gulimall.member.exception.UsernameExistException;
 import com.lif314.gulimall.member.vo.MemberLoginVo;
 import com.lif314.gulimall.member.vo.MemberRegisterVo;
+import com.lif314.gulimall.member.vo.SocialUserVo;
 
 import java.net.UnknownServiceException;
 import java.util.Map;
@@ -30,5 +31,7 @@ public interface MemberService extends IService<MemberEntity> {
     void checkPhoneUnique(String phone) throws PhoneExistException;
 
     MemberEntity login(MemberLoginVo vo);
+
+    MemberEntity oauthLogin(SocialUserVo socialUserVo);
 }
 

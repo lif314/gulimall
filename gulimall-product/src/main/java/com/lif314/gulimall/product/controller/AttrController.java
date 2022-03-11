@@ -28,8 +28,9 @@ import java.util.Map;
 @RestController
 @RequestMapping("product/attr")
 public class AttrController {
+
     @Autowired
-    private AttrService attrService;
+    AttrService attrService;
 
     @Autowired
     ProductAttrValueService productAttrValueService;

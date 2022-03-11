@@ -5,6 +5,7 @@ import com.lif314.gulimall.member.exception.PhoneExistException;
 import com.lif314.gulimall.member.exception.UsernameExistException;
 import com.lif314.gulimall.member.vo.MemberLoginVo;
 import com.lif314.gulimall.member.vo.MemberRegisterVo;
+import com.lif314.gulimall.member.vo.SocialUserVo;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.Map;
@@ -99,6 +100,34 @@ public class MemberServiceImpl extends ServiceImpl<MemberDao, MemberEntity> impl
         }
     }
 
+    /**
+     * gitee社交登录
+     */
+    @Override
+    public MemberEntity oauthLogin(SocialUserVo socialUserVo) {
+        // 登录和注册合并逻辑
+        // 社交账号唯一id
+        Long socialUid = socialUserVo.getSocialUid();
+        String socialType = socialUserVo.getSocialType();
+        // 判断该用户是否已经在网站登录过
+        MemberEntity memberEntity = this.baseMapper.selectOne(new QueryWrapper<MemberEntity>().eq("social_uid", socialUid).eq("social_type", socialType));
+        if(memberEntity != null){
+            // 已经登录过, 返回该用户的信息
+            return memberEntity;
+        }else{
+            // 没有登录过，需要新的注册
+            MemberEntity newMember = new MemberEntity();
+            // 为了多平台登录兼容性，随机生成用户昵称
+            // 使用社交类型加Hi作为昵称
+            newMember.setNickname("Hi,"+socialType + " user");
+            newMember.setUsername("new user");
+            newMember.setSocialUid(socialUid);
+            newMember.setSocialType(socialType);
+            this.baseMapper.insert(newMember);
+            // 返回注册的对象
+            return newMember;
+        }
+    }
 
     private MemberLevelEntity getDefaultMemberLevel() {
         return this.baseMapper.getDefaultMemberLevel();

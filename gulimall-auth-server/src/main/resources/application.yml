@@ -14,3 +14,11 @@ spring:
 
 server:
   port: 9200
+
+oauth:
+  gitee:
+    clientid: f518ed7554211da25276cfb43c37e0d423b0e048dd8848c2a48292879092dd13
+    clientsecret: 97829c106e00d9ae2a9e955af592462ed082be87b30845cee40e36d6af2342aa
+    redirecturi: http://auth.feihong.com/oauth2.0/gitee/sucess
+
+

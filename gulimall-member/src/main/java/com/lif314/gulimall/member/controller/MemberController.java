@@ -10,6 +10,7 @@ import com.lif314.gulimall.member.exception.UsernameExistException;
 import com.lif314.gulimall.member.feign.CouponFeignService;
 import com.lif314.gulimall.member.vo.MemberLoginVo;
 import com.lif314.gulimall.member.vo.MemberRegisterVo;
+import com.lif314.gulimall.member.vo.SocialUserVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -45,6 +46,21 @@ public class MemberController {
         return R.ok().put("member", memberEntity).put("coupons", membercoupons.get("coupons"));
     }
 
+    /***
+     * 社交账号登录
+     */
+    @PostMapping("/oauth2/login")
+    public R oauthlogin(@RequestBody SocialUserVo socialUserVo){
+        MemberEntity entity = memberService.oauthLogin(socialUserVo);
+        if(entity != null){
+            // TODO 登录成功处理, 返回用户信息
+            return R.ok().put("data", entity);
+        }else{
+            return R.error(BizCodeEnum.USER_LOGIN_EXCEPTION.getCode(), BizCodeEnum.USER_LOGIN_EXCEPTION.getMsg());
+        }
+    }
+
+
     /**
      * 用户登录
      */
@@ -58,8 +74,6 @@ public class MemberController {
             return R.error(BizCodeEnum.USER_LOGIN_EXCEPTION.getCode(), BizCodeEnum.USER_LOGIN_EXCEPTION.getMsg());
         }
     }
-
-
 
     /**
      * 注册用户

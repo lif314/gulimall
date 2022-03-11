@@ -1,7 +1,7 @@
 package com.lif314.gulimall.thirdparty.component;
 
 
-import com.lif314.gulimall.thirdparty.utils.HttpUtils;
+import com.lif314.common.utils.HttpUtils;
 import lombok.Data;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
