@@ -17,10 +17,7 @@ import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -124,18 +121,41 @@ public class CartServiceImpl implements CartService {
             // 获取临时购物车
             String userKey = CartConstant.CART_PREFIX + userInfoTo.getUserKey();
             List<CartItem> tempCarts = getCartByKey(userKey);
+            Map<Long, CartItem> itemMaps = null;
             if(tempCarts != null && tempCarts.size() > 0){
                 // 临时购物车有数据，需要合并
                 // 将正式购物车中的数据映射为 <skuId, count>
-                List<Map<Long, Integer>> maps = cartItemsByUserId.stream().map((item) -> {
-                    Map<Long, Integer> userIdMap = new HashMap<>();
-                    userIdMap.put(item.getSkuId(), item.getCount());
-                    return userIdMap;
-                }).collect(Collectors.toList());
-
+                // TODO 购物车合并
+                // 将正式购物车中的数据映射为Map,Key为skuId, 值为对象，然后通过临时购物车中的skuId
+                // 判断是否已经在购物车中：如果在，则将正式购物车中的数量加上；如果不在，则添加到正式购物车中
+                itemMaps = new HashMap<>();
+                for (CartItem item : cartItemsByUserId) {
+                    itemMaps.put(item.getSkuId(), item);
+                }
+                for (CartItem tempCart : tempCarts) {
+                    CartItem cartItem = itemMaps.get(tempCart.getSkuId());
+                    if(cartItem != null){
+                        // 正式购物车中已经存在该商品
+                        cartItem.setCount(cartItem.getCount() + tempCart.getCount());
+                        // 删除原有数据
+                        itemMaps.remove(tempCart.getSkuId());
+                        // 保存更新的数据
+                        itemMaps.put(cartItem.getSkuId(), cartItem);
+                    }else{
+                        // 直接存入正式购物车中
+                        itemMaps.put(tempCart.getSkuId(), tempCart);
+                    }
+                }
             }
-            // 合并完成
-            cart.setItems(cartItemsByUserId);
+
+            if(itemMaps != null){
+                // 经过合并
+                List<CartItem> values = (List<CartItem>) itemMaps.values();
+                cart.setItems(values);
+            }else{
+                //没有合并过
+                cart.setItems(cartItemsByUserId);
+            }
             // 清除临时购物车 -- 这个应该可以删除hash中的数据
             redisTemplate.delete(userKey);
         }else {
@@ -183,13 +203,4 @@ public class CartServiceImpl implements CartService {
         BoundHashOperations<String, Object, Object> hashOps = redisTemplate.boundHashOps(cartKey);
         return hashOps;
     }
-
-
-    /**
-     *获取购物车： 登录前是临时购物车
-     *      登陆后才是真的购物车
-     * 判断是否登录：Session中是否存在相关的信息
-     */
-
-
 }
