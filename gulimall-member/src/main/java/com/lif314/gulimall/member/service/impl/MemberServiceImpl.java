@@ -6,8 +6,11 @@ import com.lif314.gulimall.member.exception.UsernameExistException;
 import com.lif314.gulimall.member.vo.MemberLoginVo;
 import com.lif314.gulimall.member.vo.MemberRegisterVo;
 import com.lif314.gulimall.member.vo.SocialUserVo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Date;
 import java.util.Map;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -22,6 +25,10 @@ import com.lif314.gulimall.member.service.MemberService;
 
 @Service("memberService")
 public class MemberServiceImpl extends ServiceImpl<MemberDao, MemberEntity> implements MemberService {
+
+    @Autowired
+    MemberDao memberDao;
+
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -122,8 +129,10 @@ public class MemberServiceImpl extends ServiceImpl<MemberDao, MemberEntity> impl
             newMember.setNickname("Hi,"+socialType + " user");
             newMember.setUsername("new user");
             newMember.setSocialUid(socialUid);
+            newMember.setLevelId(1L);  // 默认普通会员
             newMember.setSocialType(socialType);
-            this.baseMapper.insert(newMember);
+            newMember.setCreateTime(new Date());
+            memberDao.insert(newMember);
             // 返回注册的对象
             return newMember;
         }

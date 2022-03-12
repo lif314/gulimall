@@ -12,7 +12,7 @@ import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.HashMap;
@@ -35,13 +35,14 @@ public class OAuth2Controller {
     @Value("${oauth.gitee.redirecturi}")
     private String redirect_uri;
 
-    @GetMapping("/oauth2.0/gitee/success")
+
+    @RequestMapping("/oauth2.0/gitee/success")
     public String giteeAuth(@RequestParam("code") String code) {
         String host = "https://gitee.com";
         String method = "POST";
         String path = "/oauth/token";
         Map<String, String> headers = new HashMap<>();
-        headers.put("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36");
+//        headers.put("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36");
 
         // 根据code换取access token
         Map<String, String> querys = new HashMap<>();
@@ -77,27 +78,28 @@ public class OAuth2Controller {
                  * }
                  */
                 // 用户唯一id标识
-                String id = (String) userInfoJson.get("id");
+                Integer id = (Integer) userInfoJson.get("id"); // id类型是Integer
                 SocialUser socialUser = new SocialUser();
-                socialUser.setSocialUid(Long.parseLong(id));
+                socialUser.setSocialUid(Long.parseLong(String.valueOf(id)));
                 socialUser.setSocialType("gitee");
 
                 // 远程社交登录
                 R r = memberFeignService.oauthlogin(socialUser);
                 if(r.getCode()== 0){
                     // 登录成功，回到首页
+                    return "redirect:http://feihong.com";
                 }else{
                     // 登录失败，回到登录页
-                    return "http://auth.feihong.com/login.html";
+                    return "redirect:http://auth.feihong.com/login.html";
                 }
             } else {
                 // 获取失败，重新回到登录页
-                return "http://auth.feihong.com/login.html";
+                return "redirect:http://auth.feihong.com/login.html";
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return "http://auth.feihong.com/login.html";
+        return "redirect:http://auth.feihong.com/login.html";
     }
 
 }

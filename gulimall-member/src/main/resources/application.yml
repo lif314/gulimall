@@ -18,7 +18,6 @@ mybatis-plus:
   mapper-locations: classpath:/mapper/**/*.xml
   global-config:
     db-config:
-      # 主键自增
       id-type: auto
 
 server:
