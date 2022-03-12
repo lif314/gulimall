@@ -69,7 +69,8 @@ public class MemberController {
         MemberEntity memberEntity = memberService.login(vo);
         if(memberEntity != null)
         {
-            return R.ok();
+            // 登录成功，返回用户信息
+            return R.ok().put("data", memberEntity);
         }else{
             return R.error(BizCodeEnum.USER_LOGIN_EXCEPTION.getCode(), BizCodeEnum.USER_LOGIN_EXCEPTION.getMsg());
         }

@@ -2,10 +2,12 @@ package com.lif314.gulimall.authserver.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.lif314.common.constant.AuthServerConstant;
 import com.lif314.common.utils.HttpUtils;
 import com.lif314.common.utils.R;
 import com.lif314.gulimall.authserver.feign.MemberFeignService;
 import com.lif314.gulimall.authserver.utils.GiteeHttpClient;
+import com.lif314.common.to.MemberRespTo;
 import com.lif314.gulimall.authserver.vo.SocialUser;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,7 +40,7 @@ public class OAuth2Controller {
 
 
     @RequestMapping("/oauth2.0/gitee/success")
-    public String giteeAuth(@RequestParam("code") String code) {
+    public String giteeAuth(@RequestParam("code") String code, HttpSession session) {
         String host = "https://gitee.com";
         String method = "POST";
         String path = "/oauth/token";
@@ -87,6 +90,13 @@ public class OAuth2Controller {
                 R r = memberFeignService.oauthlogin(socialUser);
                 if(r.getCode()== 0){
                     // 登录成功，回到首页
+                    MemberRespTo data = (MemberRespTo) r.get("data");
+                    // System.out.println("用户信息:"+ data.toString());
+                    // 子域的session也能让父域名使用：发卡的时候指定域名为父域
+                    // 会将数据存在Redis中
+                    // TODO 1. 默认发的令牌 session=asa, 作用域是当前域--> 解决子域共享的问题
+                    // TODO 2. Redis中存储数据是JDK默认序列化，希望使用JSON序列化
+                    session.setAttribute(AuthServerConstant.LOGIN_USER, data);
                     return "redirect:http://feihong.com";
                 }else{
                     // 登录失败，回到登录页

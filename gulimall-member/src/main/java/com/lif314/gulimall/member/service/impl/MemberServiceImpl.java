@@ -56,6 +56,8 @@ public class MemberServiceImpl extends ServiceImpl<MemberDao, MemberEntity> impl
         memberEntity.setLevelId(memberLevel.getId());
 
         memberEntity.setUsername(vo.getUserName());
+        // 默认昵称为用户名
+        memberEntity.setNickname(vo.getUserName());
         memberEntity.setMobile(vo.getPhone());
 
         // TODO 密码加密存储  MD5--盐值(拼接随机值)加密
@@ -127,7 +129,6 @@ public class MemberServiceImpl extends ServiceImpl<MemberDao, MemberEntity> impl
             // 为了多平台登录兼容性，随机生成用户昵称
             // 使用社交类型加Hi作为昵称
             newMember.setNickname("Hi,"+socialType + " user");
-            newMember.setUsername("new user");
             newMember.setSocialUid(socialUid);
             newMember.setLevelId(1L);  // 默认普通会员
             newMember.setSocialType(socialType);

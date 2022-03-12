@@ -66,10 +66,10 @@
             <li>
                 <a th:if="${session.loginUser == null}" href="http://auth.feihong.com/login.html"
                    class="li_2">你好，请登录</a>
-                <a th:if="${session.loginUser != null}">欢迎, [[${session.loginUser.nickname}]]</a>
+                <a th:if="${session.loginUser != null}">欢迎：[[${session.loginUser.nickname}]]</a>
             </li>
             <li>
-                <a th:if="${session.loginUser == null}" href="http://auth.feihong.com/reg.html"
+                <a th:if="${session.loginUser == null}" href="http://auth.feihong.com/register.html"
                    style="color: red;">免费注册</a>
             </li>
             <span>|</span>

@@ -95,10 +95,11 @@
   					</b>
         <ul>
           <li>
-            <a href="http://auth.feihong.com/login.html">你好，请登录</a>
+            <a th:if="${session.loginUser!=null}">欢迎：[[${session.loginUser.nickname}]]</a>
+            <a href="http://auth.feihong.com/login.html" th:if="${session.loginUser==null}">您好，请登录</a>
           </li>
           <li>
-            <a href="http://auth.feihong.com/register.html" class="li_2">免费注册</a>
+            <a href="http://auth.feihong.com/register.html" class="li_2" th:if="${session.loginUser==null}">免费注册</a>
           </li>
           <span>|</span>
           <li>

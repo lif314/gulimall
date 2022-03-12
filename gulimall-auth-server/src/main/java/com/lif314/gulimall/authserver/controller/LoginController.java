@@ -3,6 +3,7 @@ package com.lif314.gulimall.authserver.controller;
 import com.alibaba.fastjson.TypeReference;
 import com.lif314.common.constant.AuthServerConstant;
 import com.lif314.common.exception.BizCodeEnum;
+import com.lif314.common.to.MemberRespTo;
 import com.lif314.common.to.SmsTo;
 import com.lif314.common.utils.R;
 import com.lif314.gulimall.authserver.feign.MemberFeignService;
@@ -18,6 +19,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.security.SecureRandom;
 import java.util.HashMap;
@@ -145,11 +147,13 @@ public class LoginController {
 
 
     @PostMapping("/login")
-    public String login(UserLoginVo vo, RedirectAttributes redirectAttributes){
+    public String login(UserLoginVo vo, RedirectAttributes redirectAttributes, HttpSession session){
         // 调用远程登录
         R r = memberFeignService.login(vo);
         if(r.getCode() == 0) {
             // 登录成功，回到首页
+            MemberRespTo data = (MemberRespTo) r.get("data");
+            session.setAttribute(AuthServerConstant.LOGIN_USER, data);
             return "redirect:http://feihong.com";
         }else{
             // 登录失败
@@ -160,5 +164,15 @@ public class LoginController {
         }
     }
 
-
+    @GetMapping("/login.html")
+    public String loginPage(HttpSession session){
+        Object attribute = session.getAttribute(AuthServerConstant.LOGIN_USER);
+        if(attribute == null){
+            // 回到登录页
+            return "login";
+        }else{
+            // 回到首页
+            return "redirect:http://feihong.com";
+        }
+    }
 }
