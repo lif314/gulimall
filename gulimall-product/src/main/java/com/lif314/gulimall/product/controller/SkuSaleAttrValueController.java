@@ -1,15 +1,12 @@
 package com.lif314.gulimall.product.controller;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.lif314.gulimall.product.entity.SkuSaleAttrValueEntity;
 import com.lif314.gulimall.product.service.SkuSaleAttrValueService;
@@ -30,6 +27,16 @@ import com.lif314.common.utils.R;
 public class SkuSaleAttrValueController {
     @Autowired
     private SkuSaleAttrValueService skuSaleAttrValueService;
+
+
+    /**
+     * 购物车显示：查询商品的所有销售属性的值
+     */
+    @GetMapping("/stringlist/{skuId}")
+    public List<String> getSkuSaleAttrValues(@PathVariable("skuId") Long skuId){
+        return skuSaleAttrValueService.getSkuSaleAttrValuesBySkuId(skuId);
+    }
+
 
     /**
      * 列表

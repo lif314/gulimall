@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import java.util.concurrent.*;
 
 @Configuration
-public class MyThreadConfig {
+public class ProductThreadConfig {
 
     @Bean
     public ThreadPoolExecutor threadPoolExecutor(ThreadPoolConfigProperties pool ){

@@ -10,7 +10,7 @@ import java.util.List;
  */
 @Data // 不会覆盖自定义get/set
 public class CartItem {
-    private String skuId; // 商品id
+    private Long skuId; // 商品id
 
     private Boolean check=true; // 是否被选中
 

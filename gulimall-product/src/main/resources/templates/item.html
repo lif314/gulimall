@@ -625,7 +625,7 @@
 
                 <div class="box-btns clear">
                     <div class="box-btns-one">
-                        <input type="text" name="" id="" value="1"/>
+                        <input type="text" name="" id="numInput" value="1"/>
                         <div class="box-btns-one1">
 
                             <div>
@@ -642,8 +642,8 @@
                         </div>
                     </div>
                     <div class="box-btns-two">
-                        <a href="/static/item/../商品分类\index.html">
-                            立即预约
+                        <a href="#" id="addToCartA" th:attr="skuId=${item.info.skuId}">
+                            加入购物车
                         </a>
                     </div>
                     <div class="box-btns-three">
@@ -1270,6 +1270,17 @@
         $(".sku_attr_value").parent().css({"border": "solid 1px #ccc"});
         $("a[class='sku_attr_value checked']").parent().css({"border": "solid 1px red"});
     });
+
+
+    $("#addToCartA").click(function (){
+        // 商品数量
+        var num = $("#numInput").val();
+        var skuId = $(this).attr("skuId");
+        location.href = "http://cart.feihong.com/addToCart?skuId=" +skuId +"&num="+num;
+        // 禁用默认行为
+        return false;
+    });
+
 </script>
 
 </html>

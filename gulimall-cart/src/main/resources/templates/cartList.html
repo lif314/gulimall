@@ -18,13 +18,18 @@
 					<ul class="header-left">
 						<li>
 
-							<a href="/static/cart/">首页</a>
+							<a href="http://feihong.com">首页</a>
 						</li>
 
 					</ul>
 					<ul class="header-right">
-						<li><a href="/static/cart/../登录页面\index.html" style="color: red;">你好，请登录</a></li>
-						<li><a href="/static/cart/../注册页面\index.html">免费注册</a></li>
+						<li style="border: 0;" width="100px">
+							<a th:if="${session.loginUser!=null}">[[${session.loginUser.nickname}]]</a>
+							<a href="http://auth.feihong.com/login.html" th:if="${session.loginUser==null}">您好，请登录</a>
+						</li>
+						<li>
+							<a href="http://auth.feihong.com/register.html" class="li_2" th:if="${session.loginUser==null}">免费注册</a>
+						</li>
 						<li class="spacer"></li>
 						<li><a href="/static/cart/">我的订单</a></li>
 						<li class="spacer"></li>
@@ -44,8 +49,8 @@
 			<div class="one_sousuo">
 				<div class="one_search_top">
 					<div class="one_top_left">
-						<a href="/static/cart/../" class="one_left_logo"><img src="/static/cart/img/logo1.jpg"></a>
-						<a href="/static/cart/#" class="one_left_link">购物车</a>
+						<a href="http://feihong.com" class="one_left_logo"><img src="/static/cart/img/logo1.jpg"></a>
+						<a class="one_left_link">购物车</a>
 					</div>
 					<div class="one_top_right">
 						<input type="text" class="one_right_txt" placeholder="" onfocus="this.placeholder=''" onblur="this.placeholder='' ">

@@ -19,7 +19,7 @@
     <div class="hd_wrap_top">
         <ul class="hd_wrap_left">
             <li class="hd_home"><i class="glyphicon glyphicon-home"></i>
-                <a href="http://feihong.com">谷粒商城首页</a>
+                <a href="http://feihong.com">宏飞商城</a>
             </li>
 
         </ul>
@@ -62,21 +62,20 @@
     <div class="success-wrap">
         <div class="w" id="result">
             <div class="m succeed-box">
-                <div class="mc success-cont">
+                <div th:if="${item!=null}" class="mc success-cont">
                     <div class="success-lcol">
                         <div class="success-top"><b class="succ-icon"></b>
                             <h3 class="ftx-02">商品已成功加入购物车</h3></div>
                         <div class="p-item">
                             <div class="p-img">
-                                <a href="javascript:;" target="_blank"><img style="height: 60px;width:60px;"
-                                                                            src="/static/cart//img/shop1.jpg"></a>
+                                <a href="javascript:;" target="_blank"><img style="height: 60px;width:60px;" th:src="${item.image}"></a>
                             </div>
                             <div class="p-info">
                                 <div class="p-name">
-                                    <a href="/static/cart/'http://item.gmall.com/'+${skuInfo?.id}+'.html'"
-                                       text="${skuInfo?.skuName}">TCL 55A950C 55英寸32核人工智能 HDR曲面超薄4K电视金属机身（枪色）</a>
+                                    <a th:href="'http://item.feihong.com/'+${item.skuId}+'.html'"
+                                       th:text="${item.title}">TCL 55A950C 55英寸32核人工智能 HDR曲面超薄4K电视金属机身（枪色）</a>
                                 </div>
-                                <div class="p-extra"><span class="txt" text="'数量：'+${skuNum}">  数量：1</span></div>
+                                <div class="p-extra"><span class="txt" th:text="'数量：'+${item.count}">  数量：1</span></div>
                             </div>
                             <div class="clr"></div>
                         </div>
@@ -87,11 +86,14 @@
                         </div>
                         <div class="clr"></div>
                         <div class="bg_shop">
-                            <a class="btn-tobback" href="http://item.gmall.com:8084/'+${skuInfo?.id}+'.html'">查看商品详情</a>
-                            <a class="btn-addtocart" href="/static/cart/http://cart.gmall.com:8087/cartList"
+                            <a class="btn-tobback" th:href="'http://item.feihong.com/'+${item.skuId}+'.html'">查看商品详情</a>
+                            <a class="btn-addtocart" href="http://cart.feihong.com/cart.html"
                                id="GotoShoppingCart"><b></b>去购物车结算</a>
                         </div>
                     </div>
+                </div>
+                <div th:if="${item==null}" class="mc success-cont">
+                    <h3>购物车中无商品</h3><a href="http://feihong.com">去购物！</a>
                 </div>
             </div>
         </div>
