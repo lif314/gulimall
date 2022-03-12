@@ -59,9 +59,9 @@
                 </li>
             </ul>
             <ul class="header_ul_right">
-                <li>
-                    <a class="aa" th:if="${session.loginUser!=null}">欢迎：[[${session.loginUser.nickname}]]</a>
-                    <a class="aa" href="http://auth.feihong.com/login.html" th:if="${session.loginUser==null}">您好，请登录</a>
+                <li style="border: 0;" width="100px">
+                    <a th:if="${session.loginUser!=null}">[[${session.loginUser.nickname}]]</a>
+                    <a href="http://auth.feihong.com/login.html" th:if="${session.loginUser==null}">您好，请登录</a>
                 </li>
                 <li>
                     <a href="http://auth.feihong.com/register.html" class="li_2" th:if="${session.loginUser==null}">免费注册</a>

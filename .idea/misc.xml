@@ -17,6 +17,9 @@
         <option value="$PROJECT_DIR$/gulimall-search/pom.xml" />
         <option value="$PROJECT_DIR$/gulimall-auth-server/pom.xml" />
         <option value="$PROJECT_DIR$/gulimall-cart/pom.xml" />
+        <option value="$PROJECT_DIR$/gulimall-test-sso-server/pom.xml" />
+        <option value="$PROJECT_DIR$/gulimall-test-sso-client/pom.xml" />
+        <option value="$PROJECT_DIR$/gulimall-test-sso-client2/pom.xml" />
       </list>
     </option>
   </component>

@@ -1,5 +1,6 @@
 package com.lif314.gulimall.authserver.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.lif314.common.constant.AuthServerConstant;
 import com.lif314.common.exception.BizCodeEnum;
@@ -152,8 +153,10 @@ public class LoginController {
         R r = memberFeignService.login(vo);
         if(r.getCode() == 0) {
             // 登录成功，回到首页
-            MemberRespTo data = (MemberRespTo) r.get("data");
-            session.setAttribute(AuthServerConstant.LOGIN_USER, data);
+            Object data =  r.get("data");
+            String toString = JSON.toJSON(data).toString();
+            MemberRespTo memberRespTo = JSON.parseObject(toString, MemberRespTo.class);
+            session.setAttribute(AuthServerConstant.LOGIN_USER, memberRespTo);
             return "redirect:http://feihong.com";
         }else{
             // 登录失败

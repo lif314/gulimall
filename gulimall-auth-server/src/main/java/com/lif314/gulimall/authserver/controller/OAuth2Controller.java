@@ -90,13 +90,15 @@ public class OAuth2Controller {
                 R r = memberFeignService.oauthlogin(socialUser);
                 if(r.getCode()== 0){
                     // 登录成功，回到首页
-                    MemberRespTo data = (MemberRespTo) r.get("data");
+                    Object data =  r.get("data");
+                    String toString = JSON.toJSON(data).toString();
+                    MemberRespTo memberRespTo = JSON.parseObject(toString, MemberRespTo.class);
                     // System.out.println("用户信息:"+ data.toString());
                     // 子域的session也能让父域名使用：发卡的时候指定域名为父域
                     // 会将数据存在Redis中
                     // TODO 1. 默认发的令牌 session=asa, 作用域是当前域--> 解决子域共享的问题
                     // TODO 2. Redis中存储数据是JDK默认序列化，希望使用JSON序列化
-                    session.setAttribute(AuthServerConstant.LOGIN_USER, data);
+                    session.setAttribute(AuthServerConstant.LOGIN_USER, memberRespTo);
                     return "redirect:http://feihong.com";
                 }else{
                     // 登录失败，回到登录页
