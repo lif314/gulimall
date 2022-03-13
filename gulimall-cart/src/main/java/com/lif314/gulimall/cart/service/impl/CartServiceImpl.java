@@ -202,7 +202,7 @@ public class CartServiceImpl implements CartService {
     }
 
     /**
-     * 根据key获取购物车中的数据
+     * 根据key获取购物车中的数据lllllllllllllll
      */
     private List<CartItem> getCartByKey(String cartKey) {
         BoundHashOperations<String, Object, Object> hashOps = redisTemplate.boundHashOps(cartKey);

@@ -18,6 +18,13 @@
         <spring-cloud.version>2021.0.0</spring-cloud.version>
     </properties>
     <dependencies>
+
+        <!--RabbitMQ -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>com.lif314.gulimall</groupId>
             <artifactId>gulimall-common</artifactId>
