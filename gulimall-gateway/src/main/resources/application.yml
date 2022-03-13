@@ -63,6 +63,11 @@ spring:
           uri: lb://gulimall-cart
           predicates:
             - Host=cart.feihong.com
+        # order.feihong.com
+        - id: gulimall_order_route
+          uri: lb://gulimall-order
+          predicates:
+            - Host=order.feihong.com
 
 #  现在的验证码请求路径为，http://localhost:88/api/captcha.jpg?uuid=69c79f02-d15b-478a-8465-a07fd09001e6
 #  原始的验证码请求路径：http://localhost:8001/renren-fast/captcha.jpg?uuid=69c79f02-d15b-478a-8465-a07fd09001e6
