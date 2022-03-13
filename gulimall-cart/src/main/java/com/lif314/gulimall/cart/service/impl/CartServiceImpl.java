@@ -137,8 +137,8 @@ public class CartServiceImpl implements CartService {
                     if(cartItem != null){
                         // 正式购物车中已经存在该商品
                         cartItem.setCount(cartItem.getCount() + tempCart.getCount());
-                        // 删除原有数据
-                        itemMaps.remove(tempCart.getSkuId());
+                        // 删除原有数据---> 不需要删除,Redis会按照key进行更新
+//                        itemMaps.remove(tempCart.getSkuId());
                         // 保存更新的数据
                         itemMaps.put(cartItem.getSkuId(), cartItem);
                     }else{
@@ -168,9 +168,41 @@ public class CartServiceImpl implements CartService {
     }
 
     /**
+     * 选中购物项
+     */
+    @Override
+    public void checkItem(Long skuId, Integer check) {
+        CartItem cartItem = getCartItemRedis(skuId);
+        cartItem.setCheck(check == 1);
+        String s = JSON.toJSONString(cartItem);
+        BoundHashOperations<String, Object, Object> cartOps = getCartOps();
+        // TODO 同一个key，redis会进行更新吗？ 是的，直接更新，不用删除
+        cartOps.put(skuId.toString(), s);
+    }
+
+    /**
+     * 改变商品的数量
+     */
+    @Override
+    public void changeItemCount(Long skuId, Integer num) {
+        CartItem cartItem = getCartItemRedis(skuId);
+        cartItem.setCount(num);
+        String s = JSON.toJSONString(cartItem);
+        BoundHashOperations<String, Object, Object> cartOps = getCartOps();
+        cartOps.put(skuId.toString(), s);
+    }
+
+    /**
+     * 删除购物项
+     */
+    @Override
+    public void deleteItem(Long skuId) {
+        BoundHashOperations<String, Object, Object> cartOps = getCartOps();
+        cartOps.delete(skuId.toString());
+    }
+
+    /**
      * 根据key获取购物车中的数据
-     * @param cartKey
-     * @return
      */
     private List<CartItem> getCartByKey(String cartKey) {
         BoundHashOperations<String, Object, Object> hashOps = redisTemplate.boundHashOps(cartKey);

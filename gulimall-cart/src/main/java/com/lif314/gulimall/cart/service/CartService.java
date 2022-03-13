@@ -12,4 +12,10 @@ public interface CartService {
     CartItem getCartItemRedis(Long skuId);
 
     Cart getCart();
+
+    void checkItem(Long skuId, Integer check);
+
+    void changeItemCount(Long skuId, Integer num);
+
+    void deleteItem(Long skuId);
 }

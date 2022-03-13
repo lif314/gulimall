@@ -7,7 +7,6 @@ import com.lif314.common.constant.CartConstant;
 import com.lif314.common.to.MemberRespTo;
 import com.lif314.gulimall.cart.to.UserInfoTo;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 

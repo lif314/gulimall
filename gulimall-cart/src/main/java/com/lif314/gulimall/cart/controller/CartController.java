@@ -1,8 +1,6 @@
 package com.lif314.gulimall.cart.controller;
 
-import com.lif314.gulimall.cart.interceptor.CartInterceptor;
 import com.lif314.gulimall.cart.service.CartService;
-import com.lif314.gulimall.cart.to.UserInfoTo;
 import com.lif314.gulimall.cart.vo.Cart;
 import com.lif314.gulimall.cart.vo.CartItem;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,6 +82,39 @@ public class CartController {
         CartItem item = cartService.getCartItemRedis(skuId);
         model.addAttribute("item", item);
         return "success";
+    }
+
+
+    // 选中购物项: http://cart.feihong.com/checkItem?skuId=" + skuId + "&check="+(check?1:0)
+    @GetMapping("/checkItem")
+    public String checkItem(@RequestParam("skuId") Long skuId,
+                            @RequestParam("check") Integer check){
+        cartService.checkItem(skuId, check);
+        // 重定向到购物车列表页
+        return "redirect:http://cart.feihong.com/cart.html";
+    }
+
+    /**
+     * 改变商品数量
+     * "http://cart.feihong.com/countItem?skuId=" + skuId + "&num="+countNum;
+     */
+    @GetMapping("/countItem")  // 需要跳转的都是Get请求
+    public String countItem(@RequestParam("skuId") Long skuId,
+                            @RequestParam("num") Integer num){
+        cartService.changeItemCount(skuId, num);
+        // 修改成功后，跳转购物车页面
+        return "redirect:http://cart.feihong.com/cart.html";
+    }
+
+    /**
+     * 删除购物项
+     *
+     * location.href = "http://cart.feihong.com/deleteItem?skuId=" + deleteSkuId;
+     */
+    @GetMapping("/deleteItem")
+    public String deleteItem(@RequestParam("skuId") Long skuId){
+        cartService.deleteItem(skuId);
+        return "redirect:http://cart.feihong.com/cart.html";
     }
 
 
