@@ -2,6 +2,7 @@ package com.lif314.gulimall.cart.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.lif314.common.constant.AuthServerConstant;
 import com.lif314.common.constant.CartConstant;
 import com.lif314.common.utils.R;
 import com.lif314.gulimall.cart.feign.ProductFeignService;
@@ -18,6 +19,7 @@ import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -200,6 +202,33 @@ public class CartServiceImpl implements CartService {
     public void deleteItem(Long skuId) {
         BoundHashOperations<String, Object, Object> cartOps = getCartOps();
         cartOps.delete(skuId.toString());
+    }
+
+    /**
+     * 获取当前用户选中的购物项
+     * @return
+     */
+    @Override
+    public List<CartItem> getCurrentUserCartItems() {
+        // 使用拦截器获取用户身份信息
+        UserInfoTo userInfoTo = CartInterceptor.threadLocal.get();
+        if(userInfoTo ==  null){
+            // 还没有登录
+            return null;
+        }else{
+            String userIdKey = CartConstant.CART_PREFIX + userInfoTo.getUserId();
+            // 获取所有购物项
+            List<CartItem> cartByKey = getCartByKey(userIdKey);
+            List<CartItem> collect = cartByKey.stream().filter(CartItem::getCheck).collect(Collectors.toList());
+            // 远程查询：价格是Redis中的价格，可能已经改变了，所以需要更新价格
+            List<Long> cartItemIds = collect.stream().map(CartItem::getSkuId).collect(Collectors.toList());
+            Map<Long, BigDecimal> cartItemNewPrices = productFeignService.getCartItemNewPrices(cartItemIds);
+            return collect.stream().map((cartItem) -> {
+                BigDecimal price = cartItemNewPrices.get(cartItem.getSkuId());
+                cartItem.setPrice(price);
+                return cartItem;
+            }).collect(Collectors.toList());
+        }
     }
 
     /**

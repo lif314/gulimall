@@ -1,15 +1,13 @@
 package com.lif314.gulimall.product.controller;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.lif314.gulimall.product.entity.SkuInfoEntity;
 import com.lif314.gulimall.product.service.SkuInfoService;
@@ -30,6 +28,16 @@ import com.lif314.common.utils.R;
 public class SkuInfoController {
     @Autowired
     private SkuInfoService skuInfoService;
+
+
+    /**
+     * 获取购物项中商品的最新价格
+     */
+    @GetMapping("/getNewPrices")
+    public Map<Long, BigDecimal> getCartItemNewPrices(@RequestBody List<Long> ids){
+       return skuInfoService.getCartItemNewPrices(ids);
+
+    }
 
     /**
      * sku检索

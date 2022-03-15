@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -190,6 +191,19 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
         }
 
         return skuItemVo;
+    }
+
+    /**
+     * 获取选中商品的最新价格信息
+     */
+    @Override
+    public Map<Long, BigDecimal> getCartItemNewPrices(List<Long> ids) {
+        List<SkuInfoEntity> infoEntities = this.baseMapper.selectBatchIds(ids);
+        Map<Long, BigDecimal> maps = new HashMap<>();
+        for (SkuInfoEntity entity : infoEntities) {
+            maps.put(entity.getSkuId(), entity.getPrice());
+        }
+        return maps;
     }
 
 }

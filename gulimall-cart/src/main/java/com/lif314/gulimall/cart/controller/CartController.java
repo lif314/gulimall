@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpSession;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 
@@ -116,5 +117,16 @@ public class CartController {
         cartService.deleteItem(skuId);
         return "redirect:http://cart.feihong.com/cart.html";
     }
+
+
+    /**
+     * 获取当前用户选中的购物项
+     */
+    @GetMapping("/currentUserCartItems")
+    public List<CartItem> getCurrentUserCartItems(){
+       return cartService.getCurrentUserCartItems();
+    }
+
+
 
 }
