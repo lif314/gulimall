@@ -25,9 +25,12 @@
         </ul>
 
         <ul class="hd_wrap_right">
-            <li class="forel">
-                <a href="http://auth.feihong.com/login.html" class="link_login">你好,请登录</a>&nbsp;
-                <a href="http://auth.feihong.com/register.html" class="link_regist">免费注册</a>
+            <li style="height: 15px;  width: 140px">
+                <a th:if="${session.loginUser!=null}">[[${session.loginUser.nickname}]]</a>
+                <a th:if="${session.loginUser==null}" href="http://auth.feihong.com/login.html" >您好，请登录</a>
+            </li>
+            <li>
+                <a href="http://auth.feihong.com/register.html" class="li_2" th:if="${session.loginUser==null}">免费注册</a>
             </li>
             <li class="spacer"></li>
 
@@ -72,10 +75,10 @@
                             </div>
                             <div class="p-info">
                                 <div class="p-name">
-                                    <a th:href="'http://item.feihong.com/'+${item.skuId}+'.html'"
+                                    <a style="width: 600px" th:href="'http://item.feihong.com/'+${item.skuId}+'.html'"
                                        th:text="${item.title}">TCL 55A950C 55英寸32核人工智能 HDR曲面超薄4K电视金属机身（枪色）</a>
                                 </div>
-                                <div class="p-extra"><span class="txt" th:text="'数量：'+${item.count}">  数量：1</span></div>
+                                <div class="p-extra"><span class="txt" th:text="'数量：'+ ${item.count}">  数量：1</span></div>
                             </div>
                             <div class="clr"></div>
                         </div>

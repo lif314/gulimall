@@ -128,7 +128,7 @@ public class MemberServiceImpl extends ServiceImpl<MemberDao, MemberEntity> impl
             MemberEntity newMember = new MemberEntity();
             // 为了多平台登录兼容性，随机生成用户昵称
             // 使用社交类型加Hi作为昵称
-            newMember.setNickname("Hi,"+socialType + " user");
+            newMember.setNickname("Hi,"+socialType + "User");
             newMember.setSocialUid(socialUid);
             newMember.setLevelId(1L);  // 默认普通会员
             newMember.setSocialType(socialType);

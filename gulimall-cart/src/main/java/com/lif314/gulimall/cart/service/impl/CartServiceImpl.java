@@ -1,6 +1,7 @@
 package com.lif314.gulimall.cart.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.lif314.common.constant.CartConstant;
 import com.lif314.common.utils.R;
 import com.lif314.gulimall.cart.feign.ProductFeignService;
@@ -202,7 +203,7 @@ public class CartServiceImpl implements CartService {
     }
 
     /**
-     * 根据key获取购物车中的数据lllllllllllllll
+     * 根据key获取购物车中的数据
      */
     private List<CartItem> getCartByKey(String cartKey) {
         BoundHashOperations<String, Object, Object> hashOps = redisTemplate.boundHashOps(cartKey);
@@ -210,7 +211,10 @@ public class CartServiceImpl implements CartService {
         List<CartItem> cartItems = new ArrayList<>();
         if(values != null && values.size() > 0){
             cartItems = values.stream().map((obj) -> {
-                CartItem cartItem = JSON.parseObject(JSON.toJSONString(obj), CartItem.class);
+                String body = JSONObject.toJSONString(obj);
+                Object parse1 = JSON.parse(body);
+                String s = parse1.toString();
+                CartItem cartItem = JSON.parseObject(s, CartItem.class);
                 return cartItem;
             }).collect(Collectors.toList());
         }

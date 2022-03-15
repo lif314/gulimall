@@ -117,6 +117,4 @@ public class CartController {
         return "redirect:http://cart.feihong.com/cart.html";
     }
 
-
-
 }
