@@ -48,4 +48,15 @@ public class OrderConfirmVo {
     public BigDecimal getPayPrice() {
         return getTotal();
     }
+
+    public Integer getCount(){
+        // 获取件数
+        Integer count = 0;
+        if(items != null){
+            for (OrderItemVo item : items) {
+                count += item.getCount();
+            }
+        }
+        return count;
+    }
 }

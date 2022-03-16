@@ -1,15 +1,12 @@
 package com.lif314.gulimall.ware.controller;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Map;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.lif314.gulimall.ware.entity.WareInfoEntity;
 import com.lif314.gulimall.ware.service.WareInfoService;
@@ -30,6 +27,15 @@ import com.lif314.common.utils.R;
 public class WareInfoController {
     @Autowired
     private WareInfoService wareInfoService;
+
+    /**
+     * 远程获取运费信息
+     */
+    @GetMapping("/fare")
+    public R getFare(@RequestParam("addrId") Long addrId){
+     BigDecimal fare = wareInfoService.getFare(addrId);
+        return R.ok().put("data", fare);
+    }
 
     /**
      * 列表

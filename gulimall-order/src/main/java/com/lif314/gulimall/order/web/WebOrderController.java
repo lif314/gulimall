@@ -5,10 +5,11 @@ import com.lif314.gulimall.order.service.OrderService;
 import com.lif314.gulimall.order.vo.OrderConfirmVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-import java.applet.AudioClip;
+import java.util.concurrent.ExecutionException;
 
 @Controller
 public class WebOrderController {
@@ -27,9 +28,10 @@ public class WebOrderController {
      * 处理去结算请求
      */
     @GetMapping("/toTrade")
-    public String toTrade(){
+    public String toTrade(Model model) throws ExecutionException, InterruptedException {
         // 获取选中的商品数据
         OrderConfirmVo orderConfirmVo = orderService.confirmOrder();
+        model.addAttribute("orderConfirmData", orderConfirmVo);
         return "confirm";
     }
 

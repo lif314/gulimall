@@ -28,6 +28,9 @@ public class MemberReceiveAddressController {
     @Autowired
     private MemberReceiveAddressService memberReceiveAddressService;
 
+    /**
+     * 获取用户收获信息列表
+     */
     @GetMapping("/{memberId}/addresses")
     public List<MemberReceiveAddressEntity> getMemberAddress(@PathVariable("memberId") Long memberId){
         return memberReceiveAddressService.getMemberAddress(memberId);
