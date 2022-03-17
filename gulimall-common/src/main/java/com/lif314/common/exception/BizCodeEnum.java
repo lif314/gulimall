@@ -14,6 +14,7 @@ package com.lif314.common.exception;
  *  13: 购物车
  *  14: 物流
  *  15：用户
+ *  16: 库存
  */
 
 
@@ -32,7 +33,10 @@ public enum BizCodeEnum {
 
     PHONE_EXIST_EXCEPTION(15002,"手机号已存在"),
 
-    USER_LOGIN_EXCEPTION(15003,"用户登录失败，账号密码错误");
+    USER_LOGIN_EXCEPTION(15003,"用户登录失败，账号密码错误"),
+
+    NO_STOCK_EXCEPTION(16000, "商品库存不足");
+
 
     private  int code;
     private  String msg;

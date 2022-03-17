@@ -25,6 +25,7 @@ public interface WareSkuService extends IService<WareSkuEntity> {
 
     List<SkuHasStockTo> getSkuHasStock(List<Long> skuIds);
 
-    List<LockStockResult> orderLockStock(WareSkuLockVo vo);
+    //    List<LockStockResult> orderLockStock(WareSkuLockVo vo);
+    Boolean orderLockStock(WareSkuLockVo vo);
 }
 

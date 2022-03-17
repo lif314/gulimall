@@ -8,7 +8,7 @@ import lombok.Data;
 @Data
 public class SkuItemLockTo {
 
-    private String skuId;
+    private Long skuId;
 
     private Integer count;
 }

@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lif314.common.constant.OrderConstant;
+import com.lif314.common.exception.NoStockException;
 import com.lif314.common.to.MemberRespTo;
 import com.lif314.common.utils.PageUtils;
 import com.lif314.common.utils.Query;
@@ -138,10 +139,13 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         // 共享再threadLocal中
         submitOrderThreadLocal.set(submitVo);
 
+
         // 从拦截器中获取当前登录的用户
         MemberRespTo memberRespTo = LoginUserInterceptor.loginUser.get();
 
         SubmitOrderRespVo respVo = new SubmitOrderRespVo();
+        // 默认下单成功
+        respVo.setCode(0);
 
         // 1. 验证令牌【对比和删除必须保证原子性】
         String orderToken = submitVo.getOrderToken();
@@ -149,7 +153,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         // 返回值，0 失败   1成功
         Long result = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), Arrays.asList(OrderConstant.USER_ORDER_TOKEN_PREFIX + memberRespTo.getId(), orderToken));
         if (result == 0L) {
-            // 验证失败
+            // 验证失败-- 订单信息过期
             respVo.setCode(1);
             return respVo;
         } else {
@@ -174,22 +178,26 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
                 }).collect(Collectors.toList());
                 wareSkuLockVo.setLocks(skuItemLockTos);
 
+                // TODO 远程锁库存
                 R r = wareFeignService.orderLockStock(wareSkuLockVo);
                 if(r.getCode() == 0){
                     // 库存锁定成功
+                    respVo.setCode(0);
+                    respVo.setOrder(order.getOrder());
+                    return respVo;
                 }else {
-                    // 失败
+                    // 失败 -- 库存锁定失败，商品库存不足
+                    String msg = (String) r.get("msg");
+                    throw new NoStockException(msg);
+//                    respVo.setCode(3);
+//                    return respVo;
+                    // TODO 远程扣除积分
                 }
-
-                respVo.setOrder(order.getOrder());
-                respVo.setCode(1);
-
             } else {
-                respVo.setCode(1);
+                // 验价失败，商品价格信息发生改变
+                respVo.setCode(2);
                 return respVo;
             }
-
-            return respVo;
         }
 //        String redisToken = redisTemplate.opsForValue().get(OrderConstant.USER_ORDER_TOKEN_PREFIX + memberRespTo.getId());
 //        if (orderToken != null && orderToken.equals(redisToken)) {
