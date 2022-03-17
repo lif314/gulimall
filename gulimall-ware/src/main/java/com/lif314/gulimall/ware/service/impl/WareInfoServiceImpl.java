@@ -3,6 +3,7 @@ package com.lif314.gulimall.ware.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.lif314.common.utils.R;
 import com.lif314.gulimall.ware.feign.MemberFeignService;
+import com.lif314.gulimall.ware.vo.FareVo;
 import com.lif314.gulimall.ware.vo.MemberAddressVo;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +52,8 @@ public class WareInfoServiceImpl extends ServiceImpl<WareInfoDao, WareInfoEntity
      * 远程获取运费信息
      */
     @Override
-    public BigDecimal getFare(Long addrId) {
+    public FareVo getFare(Long addrId) {
+        FareVo fareVo = new FareVo();
         // 从gulimall-member中获取收货地址详细信息
         // TODO 整合第三方服务计算运费
         R info = memberFeignService.info(addrId);
@@ -61,12 +63,16 @@ public class WareInfoServiceImpl extends ServiceImpl<WareInfoDao, WareInfoEntity
             if (memberReceiveAddress != null) {
                 String s = JSON.toJSONString(memberReceiveAddress);
                 MemberAddressVo memberAddressVo = JSON.parseObject(s, MemberAddressVo.class);
+                // 获取收货人地址信息
+                fareVo.setAddress(memberAddressVo);
                 // TODO 模拟运费信息，使用电话号码
                 String phone = memberAddressVo.getPhone();
                 String substring = phone.substring(phone.length() - 1, phone.length());
-                return new BigDecimal(substring);
-            }
+                // 运费价格
+                fareVo.setFare(new BigDecimal(substring));
 
+                return fareVo;
+            }
         }
         return null;
     }

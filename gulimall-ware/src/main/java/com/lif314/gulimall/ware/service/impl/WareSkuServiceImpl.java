@@ -3,6 +3,8 @@ package com.lif314.gulimall.ware.service.impl;
 import com.lif314.common.to.SkuHasStockTo;
 import com.lif314.common.utils.R;
 import com.lif314.gulimall.ware.feign.ProductFeignService;
+import com.lif314.gulimall.ware.vo.LockStockResult;
+import com.lif314.gulimall.ware.vo.WareSkuLockVo;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -120,6 +122,18 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
         }).collect(Collectors.toList());
 
         return skuHasStockTos;
+    }
+
+    /**
+     * 为某个订单锁定库存
+     */
+    @Override
+    public List<LockStockResult> orderLockStock(WareSkuLockVo vo) {
+
+
+
+
+        return null;
     }
 
 }
