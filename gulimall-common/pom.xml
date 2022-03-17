@@ -25,6 +25,13 @@
             <artifactId>lombok</artifactId>
             <version>1.18.22</version>
         </dependency>
+
+        <!-- 导入Seata: 分布式事务 -->
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-seata</artifactId>
+        </dependency>
+
         <!-- httpcomponent包https://mvnrepository.com/artifact/org.apache.httpcomponents/httpcore -->
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
