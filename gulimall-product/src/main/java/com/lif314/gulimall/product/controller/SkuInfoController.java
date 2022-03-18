@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.lif314.gulimall.product.vo.CartItemPriceMapVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,9 +35,9 @@ public class SkuInfoController {
      * 获取购物项中商品的最新价格
      */
     @GetMapping("/getNewPrices")
-    public Map<Long, BigDecimal> getCartItemNewPrices(@RequestBody List<Long> ids){
-       return skuInfoService.getCartItemNewPrices(ids);
-
+    public R getCartItemNewPrices(@RequestParam List<Long> ids){
+        CartItemPriceMapVo cartItemNewPrices = skuInfoService.getCartItemNewPrices(ids);
+        return R.ok().put("data", cartItemNewPrices);
     }
 
     /**

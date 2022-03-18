@@ -71,4 +71,33 @@ public class WareConstant {
         }
     }
 
+
+    /**
+     * 采购需求状态详情 -- 与采购单的关系状态
+     */
+    public enum WareStockLockStatus{
+
+        LOCKED(1, "已锁定"),
+
+        UNLOCKED(2, "已解锁"),
+
+        REDUCE(3, "扣减");
+
+        private Integer status;
+        private String msg;
+
+        WareStockLockStatus(int status, String msg){
+            this.status = status;
+            this.msg = msg;
+        }
+
+        public int getStatus() {
+            return status;
+        }
+
+        public String getMsg() {
+            return msg;
+        }
+    }
+
 }

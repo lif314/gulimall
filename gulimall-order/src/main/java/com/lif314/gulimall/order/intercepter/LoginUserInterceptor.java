@@ -1,6 +1,7 @@
 package com.lif314.gulimall.order.intercepter;
 
 
+import com.alibaba.fastjson.JSON;
 import com.lif314.common.constant.AuthServerConstant;
 import com.lif314.common.to.MemberRespTo;
 import org.springframework.stereotype.Component;
@@ -29,10 +30,13 @@ public class LoginUserInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
         HttpSession session = request.getSession();
-        MemberRespTo attribute = (MemberRespTo) session.getAttribute(AuthServerConstant.LOGIN_USER);
-        if(attribute != null){
+        Object attribute = session.getAttribute(AuthServerConstant.LOGIN_USER);
+        // !!! 没有接受强制转换
+        String s = JSON.toJSONString(attribute);
+        MemberRespTo memberRespTo = JSON.parseObject(s, MemberRespTo.class);
+        if(memberRespTo != null){
             // 登录
-            loginUser.set(attribute);  // 共享用户数据
+            loginUser.set(memberRespTo);  // 共享用户数据
             return true;
         }else{
             // 没有登录就去登录

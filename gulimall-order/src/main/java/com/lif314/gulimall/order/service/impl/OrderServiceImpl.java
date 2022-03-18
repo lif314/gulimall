@@ -154,7 +154,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 
         // 1. 验证令牌【对比和删除必须保证原子性】
         String orderToken = submitVo.getOrderToken();
-        String script = "if redis.call(`get`, KEY[1]) == ARGV[1] then return redis.call(`del`, KEY[1]) else return 0 end";
+        String script = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
         // 返回值，0 失败   1成功
         Long result = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), Arrays.asList(OrderConstant.USER_ORDER_TOKEN_PREFIX + memberRespTo.getId(), orderToken));
         if (result == 0L) {

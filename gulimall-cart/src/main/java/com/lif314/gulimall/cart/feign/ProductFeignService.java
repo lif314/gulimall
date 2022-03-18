@@ -3,10 +3,7 @@ package com.lif314.gulimall.cart.feign;
 
 import com.lif314.common.utils.R;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -30,6 +27,6 @@ public interface ProductFeignService {
      * 获取购物项中商品的最新价格
      */
     @GetMapping("/product/skuinfo/getNewPrices")
-    Map<Long, BigDecimal> getCartItemNewPrices(@RequestBody List<Long> ids);
+    R getCartItemNewPrices(@RequestParam List<Long> ids);
 
 }

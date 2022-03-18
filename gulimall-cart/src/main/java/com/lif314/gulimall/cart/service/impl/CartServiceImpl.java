@@ -12,6 +12,7 @@ import com.lif314.gulimall.cart.to.SkuInfoVo;
 import com.lif314.gulimall.cart.to.UserInfoTo;
 import com.lif314.gulimall.cart.vo.Cart;
 import com.lif314.gulimall.cart.vo.CartItem;
+import com.lif314.gulimall.cart.vo.CartItemPriceMapVo;
 import io.netty.util.internal.StringUtil;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -222,12 +223,22 @@ public class CartServiceImpl implements CartService {
             List<CartItem> collect = cartByKey.stream().filter(CartItem::getCheck).collect(Collectors.toList());
             // 远程查询：价格是Redis中的价格，可能已经改变了，所以需要更新价格
             List<Long> cartItemIds = collect.stream().map(CartItem::getSkuId).collect(Collectors.toList());
-            Map<Long, BigDecimal> cartItemNewPrices = productFeignService.getCartItemNewPrices(cartItemIds);
-            return collect.stream().map((cartItem) -> {
-                BigDecimal price = cartItemNewPrices.get(cartItem.getSkuId());
-                cartItem.setPrice(price);
-                return cartItem;
-            }).collect(Collectors.toList());
+            R r = productFeignService.getCartItemNewPrices(cartItemIds);
+            if(r.getCode() == 0){
+                Object data = r.get("data");
+                String s = JSON.toJSONString(data);
+                CartItemPriceMapVo cartItemPriceMapVo = JSON.parseObject(s, CartItemPriceMapVo.class);
+                Map<Long, BigDecimal> itemNewPrices = cartItemPriceMapVo.getItemNewPrice();
+                // 不能直接传输Map类型的数据，Feign会将其转化为JSON，导致无法解析成功
+                return collect.stream().map((cartItem) -> {
+                    BigDecimal price = itemNewPrices.get(cartItem.getSkuId());
+                    cartItem.setPrice(price);
+                    return cartItem;
+                }).collect(Collectors.toList());
+            }else{
+                return null;
+            }
+
         }
     }
 

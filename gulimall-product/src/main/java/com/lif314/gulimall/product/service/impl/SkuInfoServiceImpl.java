@@ -2,6 +2,7 @@ package com.lif314.gulimall.product.service.impl;
 
 import com.lif314.gulimall.product.entity.*;
 import com.lif314.gulimall.product.service.*;
+import com.lif314.gulimall.product.vo.CartItemPriceMapVo;
 import com.lif314.gulimall.product.vo.SkuItemSaleAttrVo;
 import com.lif314.gulimall.product.vo.SkuItemVo;
 import com.lif314.gulimall.product.vo.SpuItemAttrGroupVo;
@@ -197,13 +198,16 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
      * 获取选中商品的最新价格信息
      */
     @Override
-    public Map<Long, BigDecimal> getCartItemNewPrices(List<Long> ids) {
+    public CartItemPriceMapVo getCartItemNewPrices(List<Long> ids) {
         List<SkuInfoEntity> infoEntities = this.baseMapper.selectBatchIds(ids);
         Map<Long, BigDecimal> maps = new HashMap<>();
         for (SkuInfoEntity entity : infoEntities) {
             maps.put(entity.getSkuId(), entity.getPrice());
         }
-        return maps;
+
+        CartItemPriceMapVo cartItemPriceMapVo = new CartItemPriceMapVo();
+        cartItemPriceMapVo.setItemNewPrice(maps);
+        return cartItemPriceMapVo;
     }
 
 }

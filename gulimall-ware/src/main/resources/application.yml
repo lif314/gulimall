@@ -16,6 +16,10 @@ spring:
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8
+  rabbitmq:
+    addresses: 121.36.229.15
+    port: 5672
+    virtual-host: /
 
 # sql映射文件位置
 mybatis-plus:
@@ -26,8 +30,3 @@ mybatis-plus:
       id-type: auto
 server:
   port: 8400
-
-
-logging:
-  level:
-    com.lif314: debug

@@ -22,15 +22,17 @@ public class GulimallFeignConfig {
       return new RequestInterceptor(){
           @Override
           public void apply(RequestTemplate requestTemplate) {
-              System.out.println("Feign在远程之前构造模板：" + requestTemplate);
+//              System.out.println("Feign在远程之前构造模板：" + requestTemplate);
               // 加上原来的请求头
               // 可以使用RequestContextHolder.getRequestAttributes()拿到刚进来的请求
               ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-              // 获取老请求
-              HttpServletRequest request = attributes.getRequest();
-              // 给新请求同步老请求的cookie
-              String cookie = request.getHeader("Cookie");
-              requestTemplate.header("Cookie", cookie);
+              if(attributes != null){
+                  // 获取老请求
+                  HttpServletRequest request = attributes.getRequest();
+                  // 给新请求同步老请求的cookie
+                  String cookie = request.getHeader("Cookie");
+                  requestTemplate.header("Cookie", cookie);
+              }
           }
       };
     }

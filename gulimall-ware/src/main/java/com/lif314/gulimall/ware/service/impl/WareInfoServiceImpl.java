@@ -67,7 +67,7 @@ public class WareInfoServiceImpl extends ServiceImpl<WareInfoDao, WareInfoEntity
                 fareVo.setAddress(memberAddressVo);
                 // TODO 模拟运费信息，使用电话号码
                 String phone = memberAddressVo.getPhone();
-                String substring = phone.substring(phone.length() - 1, phone.length());
+                String substring = phone.substring(phone.length() - 2);
                 // 运费价格
                 fareVo.setFare(new BigDecimal(substring));
 

@@ -3,6 +3,7 @@ package com.lif314.gulimall.product.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.lif314.common.utils.PageUtils;
 import com.lif314.gulimall.product.entity.SkuInfoEntity;
+import com.lif314.gulimall.product.vo.CartItemPriceMapVo;
 import com.lif314.gulimall.product.vo.SkuItemVo;
 
 import java.math.BigDecimal;
@@ -26,6 +27,6 @@ public interface SkuInfoService extends IService<SkuInfoEntity> {
 
     SkuItemVo item(Long skuId);
 
-    Map<Long, BigDecimal> getCartItemNewPrices(List<Long> ids);
+    CartItemPriceMapVo getCartItemNewPrices(List<Long> ids);
 }
 
