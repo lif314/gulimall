@@ -11,6 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.concurrent.ExecutionException;
@@ -47,12 +48,12 @@ public class WebOrderController {
 
         // 去创建订单，验令牌，验价格，锁库存。。。。
 
-        SubmitOrderRespVo respVo=  orderService.submitOrder(submitVo);
+        SubmitOrderRespVo respVo =  orderService.submitOrder(submitVo);
 
         if(respVo.getCode() == 0){
             model.addAttribute("submitOrderResp", respVo);
             // 下单成功来到支付选项
-            return "redirect:http://order.feihong.com/pay.html";
+            return "pay";
         }else{
             // 下单失败回到订单确认页重新确认订单信息
             String msg = "下单失败";

@@ -264,8 +264,6 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
             }
 
         }
-
-
         // 全部锁成功
         return true;
     }

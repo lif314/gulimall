@@ -133,21 +133,19 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         return orderConfirmVo;
     }
 
-
-
     /**
      * 去创建订单，验令牌，验价格，锁库存。。。。
      */
     @Transactional
     @Override
     public SubmitOrderRespVo submitOrder(OrderSubmitVo submitVo) {
-        // 共享再threadLocal中
+        // 共享再threadLocal中，创建订单数据，共享在线程中
         submitOrderThreadLocal.set(submitVo);
-
 
         // 从拦截器中获取当前登录的用户
         MemberRespTo memberRespTo = LoginUserInterceptor.loginUser.get();
 
+        // 返回对象
         SubmitOrderRespVo respVo = new SubmitOrderRespVo();
         // 默认下单成功
         respVo.setCode(0);
@@ -156,7 +154,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         String orderToken = submitVo.getOrderToken();
         String script = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
         // 返回值，0 失败   1成功
-        Long result = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), Arrays.asList(OrderConstant.USER_ORDER_TOKEN_PREFIX + memberRespTo.getId(), orderToken));
+        Long result = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), Arrays.asList(OrderConstant.USER_ORDER_TOKEN_PREFIX + memberRespTo.getId()), orderToken);
         if (result == 0L) {
             // 验证失败-- 订单信息过期
             respVo.setCode(1);
@@ -242,6 +240,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         createTo.setOrderItems(orderItemEntities);
 
         // 3、验价
+        assert orderItemEntities != null;
         computePrice(order, orderItemEntities);
 
         return createTo;

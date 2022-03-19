@@ -15,6 +15,7 @@ import com.lif314.gulimall.cart.vo.CartItem;
 import com.lif314.gulimall.cart.vo.CartItemPriceMapVo;
 import io.netty.util.internal.StringUtil;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -90,8 +91,9 @@ public class CartServiceImpl implements CartService {
         }else{
             // 更新商品的数量
             CartItem item = JSON.parseObject(res, CartItem.class);
+            String s = JSON.toJSONString(item);
             item.setCount(item.getCount() + num);
-            cartOps.put(item.getSkuId(), item);
+            cartOps.put(item.getSkuId().toString(), s);
             return item;
         }
     }
@@ -154,7 +156,12 @@ public class CartServiceImpl implements CartService {
 
             if(itemMaps != null){
                 // 经过合并
-                List<CartItem> values = (List<CartItem>) itemMaps.values();
+
+                List<CartItem> values = itemMaps.values().stream().map((item)->{
+                    CartItem cartItem = new CartItem();
+                    BeanUtils.copyProperties(item, cartItem);
+                    return cartItem;
+                }).collect(Collectors.toList());
                 cart.setItems(values);
             }else{
                 //没有合并过

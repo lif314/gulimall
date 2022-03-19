@@ -19,8 +19,8 @@ import javax.annotation.PostConstruct;
 @Configuration
 public class GulimallRabbitMQConfig {
 
-    @Autowired
-    RabbitTemplate rabbitTemplate;
+//    @Autowired
+//    RabbitTemplate rabbitTemplate;
 
     // 将发送接受消息转化为json数据
     @Bean
@@ -50,41 +50,41 @@ public class GulimallRabbitMQConfig {
      *          （2）没有明确恢复，即使宕机，消息也不会丢失。保证消费者货物不会丢失
      *          （3）手动确认: 使用Channel channel确认消息接受
      */
-    @PostConstruct  // 在对象创建完后执行该方法
-    public void initRabbitTemplate() {
-        // 设置确认返回
-        rabbitTemplate.setConfirmCallback(new RabbitTemplate.ConfirmCallback() {
-            /**
-             * @param correlationData 消息id,当前消息的唯一关联的数据
-             * @param ack             消息是否成功收到
-             * @param cause           失败的原因
-             */
-            @Override
-            public void confirm(CorrelationData correlationData, boolean ack, String cause) {
-                log.info("confirm...\ncorrelationData[" + correlationData +
-                        "]===>ack[" + ack + "]==>cause["
-                        + cause + "]");
-            }
-        });
-
-        rabbitTemplate.setReturnsCallback(new RabbitTemplate.ReturnsCallback() {
-
-            /**
-             * 只有消息没有正确抵达队列才会回调
-             */
-            @Override
-            public void returnedMessage(ReturnedMessage returned) {
-                Message message = returned.getMessage();
-                int replyCode = returned.getReplyCode();
-                String exchange = returned.getExchange();
-                String replyText = returned.getReplyText();
-                String routingKey = returned.getRoutingKey();
-                log.error("消息抵达队列错误信息：" + message
-                        +"\n状态码：" + replyCode
-                        +"\n交换机：" + exchange
-                        +"\n返回文本："  + replyText
-                        +"\n路由键： " + routingKey);
-            }
-        });
-    }
+//    @PostConstruct  // 在对象创建完后执行该方法
+//    public void initRabbitTemplate() {
+//        // 设置确认返回
+//        rabbitTemplate.setConfirmCallback(new RabbitTemplate.ConfirmCallback() {
+//            /**
+//             * @param correlationData 消息id,当前消息的唯一关联的数据
+//             * @param ack             消息是否成功收到
+//             * @param cause           失败的原因
+//             */
+//            @Override
+//            public void confirm(CorrelationData correlationData, boolean ack, String cause) {
+//                log.info("confirm...\ncorrelationData[" + correlationData +
+//                        "]===>ack[" + ack + "]==>cause["
+//                        + cause + "]");
+//            }
+//        });
+//
+//        rabbitTemplate.setReturnsCallback(new RabbitTemplate.ReturnsCallback() {
+//
+//            /**
+//             * 只有消息没有正确抵达队列才会回调
+//             */
+//            @Override
+//            public void returnedMessage(ReturnedMessage returned) {
+//                Message message = returned.getMessage();
+//                int replyCode = returned.getReplyCode();
+//                String exchange = returned.getExchange();
+//                String replyText = returned.getReplyText();
+//                String routingKey = returned.getRoutingKey();
+//                log.error("消息抵达队列错误信息：" + message
+//                        +"\n状态码：" + replyCode
+//                        +"\n交换机：" + exchange
+//                        +"\n返回文本："  + replyText
+//                        +"\n路由键： " + routingKey);
+//            }
+//        });
+//    }
 }
