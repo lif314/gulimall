@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSON;
 import com.lif314.common.constant.AuthServerConstant;
 import com.lif314.common.to.MemberRespTo;
 import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.http.HttpServletRequest;
@@ -28,6 +29,14 @@ public class LoginUserInterceptor implements HandlerInterceptor {
      */
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+
+        // 解决远程调用需要登录问题--匹配路由直接放行
+        // /order/order/status/{orderSn}
+        String requestURI = request.getRequestURI();
+        boolean match = new AntPathMatcher().match("/order/order/status/**", requestURI);
+        if(match){
+            return true;
+        }
 
         HttpSession session = request.getSession();
         Object attribute = session.getAttribute(AuthServerConstant.LOGIN_USER);

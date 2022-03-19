@@ -19,8 +19,8 @@ import javax.annotation.PostConstruct;
 @Configuration
 public class GulimallRabbitMQConfig {
 
-//    @Autowired
-//    RabbitTemplate rabbitTemplate;
+    @Autowired
+    RabbitTemplate rabbitTemplate;
 
     // 将发送接受消息转化为json数据
     @Bean
@@ -59,7 +59,7 @@ public class GulimallRabbitMQConfig {
 //             * @param ack             消息是否成功收到
 //             * @param cause           失败的原因
 //             */
-//            @Override
+//            @Override  // 服务器收到了
 //            public void confirm(CorrelationData correlationData, boolean ack, String cause) {
 //                log.info("confirm...\ncorrelationData[" + correlationData +
 //                        "]===>ack[" + ack + "]==>cause["
@@ -72,7 +72,7 @@ public class GulimallRabbitMQConfig {
 //            /**
 //             * 只有消息没有正确抵达队列才会回调
 //             */
-//            @Override
+//            @Override  // 报错
 //            public void returnedMessage(ReturnedMessage returned) {
 //                Message message = returned.getMessage();
 //                int replyCode = returned.getReplyCode();

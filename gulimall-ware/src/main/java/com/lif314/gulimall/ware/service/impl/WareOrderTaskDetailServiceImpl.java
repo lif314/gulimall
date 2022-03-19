@@ -1,6 +1,8 @@
 package com.lif314.gulimall.ware.service.impl;
 
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 import java.util.Map;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -26,4 +28,11 @@ public class WareOrderTaskDetailServiceImpl extends ServiceImpl<WareOrderTaskDet
         return new PageUtils(page);
     }
 
+    @Override
+    public List<WareOrderTaskDetailEntity> getDetailsByTaskIdAndStatus(Long taskId, Integer status) {
+        return this.list(
+                new QueryWrapper<WareOrderTaskDetailEntity>()
+                        .eq("task_id", taskId)
+                        .eq("lock_status", status));
+    }
 }

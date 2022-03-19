@@ -25,6 +25,7 @@ import com.lif314.gulimall.order.to.*;
 import com.lif314.gulimall.order.vo.OrderConfirmVo;
 import com.lif314.gulimall.order.vo.OrderSubmitVo;
 import com.lif314.gulimall.order.vo.SubmitOrderRespVo;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
@@ -75,6 +76,40 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 
     @Autowired
     OrderItemService orderItemService;
+
+    @Autowired
+    RabbitTemplate rabbitTemplate;
+
+
+    /**
+     * 定时关闭订单
+     */
+    @Override
+    public void closeOrder(OrderEntity orderEntity) {
+        Long id = orderEntity.getId();
+        // 获取数据库中订单的最新状态
+        OrderEntity newOrder = this.getById(id);
+
+        // 订单状态 --- 待付款才进行关单
+        if(newOrder != null && newOrder.getStatus().compareTo(OrderConstant.OrderStatusEnum.CREATE_NEW.getCode()) == 0){
+            // 关闭订单：状态改为已经取消
+            OrderEntity order = new OrderEntity();
+            order.setId(newOrder.getId());
+            order.setStatus(OrderConstant.OrderStatusEnum.CANCLED.getCode());
+            this.updateById(order);
+
+            // 订单解锁成功，给库存发送解锁库存消息
+            // 该交换机会将消息发送给库存
+            try{
+                // TODO 保证消息一定发送出去， 每一个消息做日志记录(给数据库保存消息详细信息，定期扫描进行恢复)
+                // 定期扫描数据库将失败的消息再发送一遍
+                rabbitTemplate.convertAndSend("order-event-exchange", "order.release.other", newOrder);
+            }catch (Exception e){
+                // TODO 引入重试机制：将没法成功的消息重试几次进行发送
+            }
+
+        }
+    }
 
 
     @Override
@@ -162,18 +197,18 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         } else {
             // 验证成功
             // 1、创建订单
-            OrderCreateTo order = createOrder();
+            OrderCreateTo orderCreateTo = createOrder();
             // 2、验价
-            BigDecimal payAmount = order.getOrder().getPayAmount();
+            BigDecimal payAmount = orderCreateTo.getOrder().getPayAmount();
             BigDecimal payPrice = submitVo.getPayPrice();
             if (Math.abs(payAmount.subtract(payPrice).doubleValue()) < 0.01) {
                 // 3、对比成功--保存订单到数据库中
-                saveOrder(order);
+                saveOrder(orderCreateTo);
 
                 // 4、锁定库存 -- 只要有异常回滚订单数据
                 WareSkuLockVo wareSkuLockVo = new WareSkuLockVo();
-                wareSkuLockVo.setOrderSn(order.getOrder().getOrderSn());
-                List<SkuItemLockTo> skuItemLockTos = order.getOrderItems().stream().map((item) -> {
+                wareSkuLockVo.setOrderSn(orderCreateTo.getOrder().getOrderSn());
+                List<SkuItemLockTo> skuItemLockTos = orderCreateTo.getOrderItems().stream().map((item) -> {
                     SkuItemLockTo skuItemLockTo = new SkuItemLockTo();
                     skuItemLockTo.setSkuId(item.getSkuId());
                     skuItemLockTo.setCount(item.getSkuQuantity());
@@ -186,7 +221,10 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
                 if(r.getCode() == 0){
                     // 库存锁定成功
                     respVo.setCode(0);
-                    respVo.setOrder(order.getOrder());
+                    respVo.setOrder(orderCreateTo.getOrder());
+
+                    // TODO 订单创建成功发送消息给MQ, 直接发送order
+                    rabbitTemplate.convertAndSend("order-event-exchange", "order.create.order", orderCreateTo.getOrder());
                     return respVo;
                 }else {
                     // 失败 -- 库存锁定失败，商品库存不足
@@ -209,6 +247,16 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 //            redisTemplate.delete(OrderConstant.USER_ORDER_TOKEN_PREFIX + memberRespTo.getId());
 //        }
     }
+
+    /**
+     * 根据订单号查询订单信息
+     */
+    @Override
+    public OrderEntity getOrderStatusByOrderSn(String orderSn) {
+        return this.baseMapper.selectOne(new QueryWrapper<OrderEntity>().eq("order_sn", orderSn));
+    }
+
+
 
     /**
      * 保存订单数据

@@ -83,8 +83,12 @@ public class MyRabbitMQConfig {
                 null);
     }
 
+
+
+
     /**
      * 绑定：交换机与库存解锁
+     * 订单释放与库存释放进行绑定
      */
     @Bean
     public Binding orderReleaseOtherBinding() {
