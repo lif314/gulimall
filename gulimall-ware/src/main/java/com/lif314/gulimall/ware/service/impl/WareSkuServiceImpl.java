@@ -69,7 +69,7 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
      * 处理解锁库存请求
      */
     @Override
-    public void handleUnLockStock(StockLockedTo to) {
+    public void handleUnLockStockWare(StockLockedTo to) {
         Long id = to.getId();  // 库存工作单id
         StockDetailTo detailTo = to.getDetailTo();
         Long detailToId = detailTo.getId();  // 工作单详情id
@@ -124,7 +124,7 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
      * 查订单状态为新建状态，没有进行解锁库存
      */
     @Override
-    public void handleUnLockStock(OrderEntityVo vo) {
+    public void handleUnLockStockOrder(OrderEntityVo vo) {
         String orderSn = vo.getOrderSn();
         // 查询最新库存工作单的状态，防止重复解锁库存
         WareOrderTaskEntity task = wareOrderTaskService.getOrderTaskByOrderSn(orderSn);

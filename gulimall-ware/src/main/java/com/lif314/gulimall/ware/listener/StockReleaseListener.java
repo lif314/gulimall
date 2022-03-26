@@ -29,7 +29,7 @@ public class StockReleaseListener {
 
         System.out.println(">>>> 收到解锁库存消息.......");
         try{
-            wareSkuService.handleUnLockStock(to);
+            wareSkuService.handleUnLockStockWare(to);
             // 消息消费成功
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
         }catch (Exception e){
@@ -46,7 +46,7 @@ public class StockReleaseListener {
     public void handleOrderCloseRelease(OrderEntityVo vo, Message message, Channel channel) throws IOException {
         System.out.println("订单关闭，准备解锁库存....");
         try {
-            wareSkuService.handleUnLockStock(vo);
+            wareSkuService.handleUnLockStockOrder(vo);
             // 走到这里宕机，消息重复发送  -- 设置为幂等的   防重表
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
         }catch (Exception e){

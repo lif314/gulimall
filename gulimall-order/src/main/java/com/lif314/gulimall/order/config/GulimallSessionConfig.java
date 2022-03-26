@@ -28,7 +28,8 @@ public class GulimallSessionConfig {
     @Bean
     public RedisSerializer springSessionDefaultRedisSerializer(){
 //        return new GenericJackson2JsonRedisSerializer();
-        return new GenericFastJsonRedisSerializer(); // 序列化器 //autoType is not support.
+        return new GenericJackson2JsonRedisSerializer(); // 序列化器
+        //return new GenericFastJsonRedisSerializer(); // 序列化器 //autoType is not support.
     }
 
 }

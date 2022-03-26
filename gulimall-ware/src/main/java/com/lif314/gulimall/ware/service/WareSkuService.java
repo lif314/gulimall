@@ -30,8 +30,9 @@ public interface WareSkuService extends IService<WareSkuEntity> {
     //    List<LockStockResult> orderLockStock(WareSkuLockVo vo);
     Boolean orderLockStock(WareSkuLockVo vo);
 
-    void handleUnLockStock(StockLockedTo to);
+    void handleUnLockStockWare(StockLockedTo to);
 
-    void handleUnLockStock(OrderEntityVo vo);
+    void handleUnLockStockOrder(OrderEntityVo vo);
+
 }
 
