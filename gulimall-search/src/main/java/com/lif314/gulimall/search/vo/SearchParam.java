@@ -1,7 +1,9 @@
 package com.lif314.gulimall.search.vo;
 
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
@@ -20,6 +22,8 @@ import java.util.List;
  * attrs=1_白色:蓝色       然后值split(":")得到各项值attrValue
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class SearchParam {
 
     /**

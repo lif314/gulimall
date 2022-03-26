@@ -3,7 +3,9 @@ package com.lif314.gulimall.product.vo;
 import com.lif314.gulimall.product.entity.SkuImagesEntity;
 import com.lif314.gulimall.product.entity.SkuInfoEntity;
 import com.lif314.gulimall.product.entity.SpuInfoDescEntity;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
@@ -11,6 +13,8 @@ import java.util.List;
  * 商品详情vo
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class SkuItemVo {
 
     /**

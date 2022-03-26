@@ -2,12 +2,16 @@ package com.lif314.gulimall.product.vo;
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.lif314.gulimall.product.entity.AttrEntity;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class AttrGroupWithAttrsVo {
 
     /**

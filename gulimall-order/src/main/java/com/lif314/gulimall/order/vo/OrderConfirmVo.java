@@ -2,7 +2,9 @@ package com.lif314.gulimall.order.vo;
 
 import com.lif314.gulimall.order.to.MemberAddressTo;
 import com.lif314.gulimall.order.to.OrderItemVo;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -11,6 +13,8 @@ import java.util.List;
  * 订单确认页数据模型
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class OrderConfirmVo {
 
     // 收获地址列表 -- gulimall-member

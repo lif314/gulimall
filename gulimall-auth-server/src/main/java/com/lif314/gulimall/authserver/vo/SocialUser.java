@@ -1,11 +1,15 @@
 package com.lif314.gulimall.authserver.vo;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * gitee获取token响应数据
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class SocialUser {
         /**
          * 返回用户数据，大都是没有用的

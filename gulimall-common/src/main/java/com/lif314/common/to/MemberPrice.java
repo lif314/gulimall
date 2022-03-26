@@ -3,7 +3,9 @@
   */
 package com.lif314.common.to;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
@@ -14,6 +16,8 @@ import java.math.BigDecimal;
  * @website http://www.bejson.com/java2pojo/
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class MemberPrice {
 
     private Long id;

@@ -5,6 +5,7 @@ import com.lif314.common.utils.PageUtils;
 import com.lif314.gulimall.order.entity.OrderEntity;
 import com.lif314.gulimall.order.vo.OrderConfirmVo;
 import com.lif314.gulimall.order.vo.OrderSubmitVo;
+import com.lif314.gulimall.order.vo.PayVo;
 import com.lif314.gulimall.order.vo.SubmitOrderRespVo;
 
 import java.util.Map;
@@ -28,5 +29,9 @@ public interface OrderService extends IService<OrderEntity> {
     OrderEntity getOrderStatusByOrderSn(String orderSn);
 
     void closeOrder(OrderEntity entity);
+
+    PayVo getOrderByOrderSn(String orderSn);
+
+    PageUtils queryPageWithItem(Map<String, Object> params);
 }
 

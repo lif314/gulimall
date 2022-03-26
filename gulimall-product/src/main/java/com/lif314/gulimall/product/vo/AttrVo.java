@@ -1,11 +1,15 @@
 package com.lif314.gulimall.product.vo;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * 不需要标注与数据库有关的注解
  */
 @Data  // lombok自动生成get/set方法
+@NoArgsConstructor
+@AllArgsConstructor
 public class AttrVo {
 
     /**

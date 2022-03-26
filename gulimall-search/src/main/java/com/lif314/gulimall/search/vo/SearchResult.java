@@ -1,7 +1,9 @@
 package com.lif314.gulimall.search.vo;
 
 import com.lif314.common.to.es.SkuEsModel;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +12,8 @@ import java.util.List;
  * 查询返回结果
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class SearchResult {
 
     private List<SkuEsModel> products;// es检索到的所有商品信息

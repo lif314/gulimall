@@ -24,6 +24,7 @@ import com.lif314.gulimall.order.service.OrderService;
 import com.lif314.gulimall.order.to.*;
 import com.lif314.gulimall.order.vo.OrderConfirmVo;
 import com.lif314.gulimall.order.vo.OrderSubmitVo;
+import com.lif314.gulimall.order.vo.PayVo;
 import com.lif314.gulimall.order.vo.SubmitOrderRespVo;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,6 +83,27 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 
 
     /**
+     * 分页查询：获取游湖已经支付成功的订单
+     */
+    public PageUtils queryPageWithItem(Map<String, Object> params){
+        // 获取当前用户信息
+        MemberRespTo memberRespTo = LoginUserInterceptor.loginUser.get();
+        IPage<OrderEntity> page = this.page(
+                new Query<OrderEntity>().getPage(params),
+                new QueryWrapper<OrderEntity>().eq("member_id", memberRespTo.getId()).orderByDesc("id")
+        );
+        // 获取订单关联的订单项信息
+        List<OrderEntity> collect = page.getRecords().stream().map((order) -> {
+            List<OrderItemEntity> order_sn = orderItemService.list(new QueryWrapper<OrderItemEntity>().eq("order_sn", order.getOrderSn()));
+            order.setItemEntities(order_sn);
+            return order;
+        }).collect(Collectors.toList());
+        IPage<OrderEntity> orderEntityIPage = page.setRecords(collect);
+        return new PageUtils(orderEntityIPage);
+    }
+
+
+    /**
      * 定时关闭订单
      */
     @Override
@@ -109,6 +131,24 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
             }
 
         }
+    }
+
+    @Override
+    public PayVo getOrderByOrderSn(String orderSn){
+        OrderEntity orderEntity = this.baseMapper.selectOne(new QueryWrapper<OrderEntity>().eq("order_sn", orderSn));
+        PayVo payVo = new PayVo();
+        // 支付宝只能识别两位小数: 有小数就向上取值
+        BigDecimal bigDecimal = orderEntity.getPayAmount().setScale(2, BigDecimal.ROUND_UP);
+        payVo.setTotal_amount(bigDecimal.toString());
+        // 交易号
+        payVo.setOut_trade_no(orderEntity.getOrderSn());
+        // 交易标题
+        List<OrderItemEntity> order_sn = orderItemService.list(new QueryWrapper<OrderItemEntity>().eq("order_sn", orderSn));
+        OrderItemEntity itemEntity = order_sn.get(0);
+        payVo.setSubject(itemEntity.getSkuName());
+        // 交易备注
+        payVo.setBody("宏飞商城购物");
+        return payVo;
     }
 
 

@@ -19,8 +19,8 @@ import javax.annotation.PostConstruct;
 @Configuration
 public class GulimallRabbitMQConfig {
 
-    @Autowired
-    RabbitTemplate rabbitTemplate;
+//    @Autowired
+//    RabbitTemplate rabbitTemplate;
 
     // 将发送接受消息转化为json数据
     @Bean

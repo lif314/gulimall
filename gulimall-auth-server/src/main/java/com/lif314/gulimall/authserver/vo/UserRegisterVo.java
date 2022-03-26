@@ -1,12 +1,16 @@
 package com.lif314.gulimall.authserver.vo;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserRegisterVo {
 
     @NotEmpty(message = "用户名必须提交")

@@ -1,6 +1,8 @@
 package com.lif314.gulimall.order.vo;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
@@ -8,6 +10,8 @@ import java.math.BigDecimal;
  * 封装订单提交的数据
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class OrderSubmitVo {
 
     private Long addrId;  // 收获地址id

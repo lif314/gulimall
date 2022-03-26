@@ -1,11 +1,15 @@
 package com.lif314.common.to.mq;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * 工作单详情
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class StockDetailTo {
     private Long id;
     /**

@@ -1,6 +1,8 @@
 package com.lif314.gulimall.cart.vo;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -9,6 +11,8 @@ import java.util.List;
  * 整个购物车
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Cart {
 
     List<CartItem> items;

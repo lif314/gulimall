@@ -1,6 +1,8 @@
 package com.lif314.gulimall.product.vo;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
@@ -9,6 +11,8 @@ import java.util.List;
  */
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class SkuItemSaleAttrVo {
     /**
      * 1.销售属性对应1个attrName

@@ -1,11 +1,15 @@
 package com.lif314.common.to.es;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.List;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class SkuEsModel {
 
     private Long skuId;
@@ -25,6 +29,8 @@ public class SkuEsModel {
     private List<Attrs> attrs;
 
     @Data // 静态内部类
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class Attrs {
         private Long attrId;
         private String attrName;
