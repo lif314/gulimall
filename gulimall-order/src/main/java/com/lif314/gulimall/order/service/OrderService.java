@@ -3,10 +3,7 @@ package com.lif314.gulimall.order.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.lif314.common.utils.PageUtils;
 import com.lif314.gulimall.order.entity.OrderEntity;
-import com.lif314.gulimall.order.vo.OrderConfirmVo;
-import com.lif314.gulimall.order.vo.OrderSubmitVo;
-import com.lif314.gulimall.order.vo.PayVo;
-import com.lif314.gulimall.order.vo.SubmitOrderRespVo;
+import com.lif314.gulimall.order.vo.*;
 
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -33,5 +30,9 @@ public interface OrderService extends IService<OrderEntity> {
     PayVo getOrderByOrderSn(String orderSn);
 
     PageUtils queryPageWithItem(Map<String, Object> params);
+
+    String handlePayResult(PayAsyncVo vo);
+
+    void updateOrderStatus(String orderSn);
 }
 

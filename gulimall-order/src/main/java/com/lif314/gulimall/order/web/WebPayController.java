@@ -40,6 +40,7 @@ public class WebPayController {
         // 调用alipay -- 响应数据为HTML表单
         // 将此页面直接交给浏览器进行渲染
         String pay = alipayTemplate.pay(payVo);
+        orderService.updateOrderStatus(orderSn);
         return pay;
     }
 
@@ -53,11 +54,14 @@ public class WebPayController {
      */
     @GetMapping("/memberOrder.html")
     public String memberOrderPage(@RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum, Model model){
+        // 支付成功，改变订单状态
+        // 使用支付宝异步通知 notify_url -- 必须要要支付宝可以访问的地址
         Map<String, Object> map = new HashMap<>();
         map.put("page", pageNum.toString());
         PageUtils page = orderService.queryPageWithItem(map);
         model.addAttribute("orders", page);
-        System.out.println(JSON.toJSONString(page));
+//        System.out.println(JSON.toJSONString(page));
+        // TODO 支付宝验签后更改订单的状态
         return "memberOrder";
     }
 }

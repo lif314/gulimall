@@ -17,5 +17,4 @@ public class StockLockedTo {
     // 每个仓库锁了某商品几件
     // 工作单详情的id
     private StockDetailTo detailTo;
-
 }

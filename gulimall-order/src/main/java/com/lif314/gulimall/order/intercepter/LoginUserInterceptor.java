@@ -33,8 +33,10 @@ public class LoginUserInterceptor implements HandlerInterceptor {
         // 解决远程调用需要登录问题--匹配路由直接放行
         // /order/order/status/{orderSn}
         String requestURI = request.getRequestURI();
-        boolean match = new AntPathMatcher().match("/order/order/status/**", requestURI);
-        if(match){
+        AntPathMatcher antPathMatcher = new AntPathMatcher();
+        boolean match = antPathMatcher.match("/order/order/status/**", requestURI);
+        boolean match1 = antPathMatcher.match("/payed/notify", requestURI);
+        if(match1 || match){
             return true;
         }
 

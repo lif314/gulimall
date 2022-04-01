@@ -14,6 +14,7 @@ import com.lif314.common.utils.R;
 import com.lif314.gulimall.order.dao.OrderDao;
 import com.lif314.gulimall.order.entity.OrderEntity;
 import com.lif314.gulimall.order.entity.OrderItemEntity;
+import com.lif314.gulimall.order.entity.PaymentInfoEntity;
 import com.lif314.gulimall.order.feign.CartFeignService;
 import com.lif314.gulimall.order.feign.MemberFeignService;
 import com.lif314.gulimall.order.feign.ProductFeignService;
@@ -21,11 +22,9 @@ import com.lif314.gulimall.order.feign.WareFeignService;
 import com.lif314.gulimall.order.intercepter.LoginUserInterceptor;
 import com.lif314.gulimall.order.service.OrderItemService;
 import com.lif314.gulimall.order.service.OrderService;
+import com.lif314.gulimall.order.service.PaymentInfoService;
 import com.lif314.gulimall.order.to.*;
-import com.lif314.gulimall.order.vo.OrderConfirmVo;
-import com.lif314.gulimall.order.vo.OrderSubmitVo;
-import com.lif314.gulimall.order.vo.PayVo;
-import com.lif314.gulimall.order.vo.SubmitOrderRespVo;
+import com.lif314.gulimall.order.vo.*;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
@@ -81,6 +80,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
     @Autowired
     RabbitTemplate rabbitTemplate;
 
+    @Autowired
+    PaymentInfoService paymentInfoService;
+
 
     /**
      * 分页查询：获取游湖已经支付成功的订单
@@ -104,6 +106,35 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         IPage<OrderEntity> orderEntityIPage = page.setRecords(collect);
 
         return new PageUtils(orderEntityIPage);
+    }
+
+    /**
+     * 处理支付宝异步 支付结果
+     */
+    @Override
+    public String handlePayResult(PayAsyncVo vo) {
+        // 1、保存交易流水
+        PaymentInfoEntity infoEntity = new PaymentInfoEntity();
+        infoEntity.setAlipayTradeNo(vo.getTrade_no());
+        infoEntity.setOrderSn(vo.getOut_trade_no());
+        infoEntity.setPaymentStatus(vo.getTrade_status());
+        infoEntity.setCallbackTime(vo.getNotify_time());
+
+        paymentInfoService.save(infoEntity);
+
+        // 2、修改订单状态
+        if(vo.getTrade_status().equals("TRADE_SUCCESS") || vo.getTrade_status().equals("TRADE_FINISHED")){
+            // 支付成功
+            String orderSn = vo.getOut_trade_no();
+            this.baseMapper.updateOrderStatus(orderSn, OrderConstant.OrderStatusEnum.PAYED.getCode());
+        }
+        return "success";
+    }
+
+    // TODO 在支付宝验签后才能更新订单的状态
+    @Override
+    public void updateOrderStatus(String orderSn) {
+        this.baseMapper.updateOrderStatus(orderSn, OrderConstant.OrderStatusEnum.PAYED.getCode());
     }
 
 
@@ -377,7 +408,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         // 最后确定每一个购物项的价格
         List<OrderItemVo> currentUserCartItems = cartFeignService.getCurrentUserCartItems();
         if (currentUserCartItems != null && currentUserCartItems.size() > 0) {
-            List<OrderItemEntity> collect = currentUserCartItems.stream().map(this::buildOrderItem).collect(Collectors.toList());
+            List<OrderItemEntity> collect = currentUserCartItems.stream().map((item)-> buildOrderItem(item, orderSn)).collect(Collectors.toList());
             return collect;
         }
         return null;
@@ -386,9 +417,10 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
     /**
      * 构建订单项
      */
-    private OrderItemEntity buildOrderItem(OrderItemVo cartItem) {
+    private OrderItemEntity buildOrderItem(OrderItemVo cartItem, String orderSn) {
         OrderItemEntity orderItemEntity = new OrderItemEntity();
         // 1、订单信息：订单号
+        orderItemEntity.setOrderSn(orderSn);
         // 2、商品SPU信息
         Long skuId = cartItem.getSkuId();
         R spuInfo = productFeignService.getSpuInfoBySkuId(skuId);
