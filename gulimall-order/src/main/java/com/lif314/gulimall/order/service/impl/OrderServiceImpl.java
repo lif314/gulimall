@@ -92,13 +92,17 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
                 new Query<OrderEntity>().getPage(params),
                 new QueryWrapper<OrderEntity>().eq("member_id", memberRespTo.getId()).orderByDesc("id")
         );
+
+
         // 获取订单关联的订单项信息
         List<OrderEntity> collect = page.getRecords().stream().map((order) -> {
             List<OrderItemEntity> order_sn = orderItemService.list(new QueryWrapper<OrderItemEntity>().eq("order_sn", order.getOrderSn()));
             order.setItemEntities(order_sn);
             return order;
         }).collect(Collectors.toList());
+
         IPage<OrderEntity> orderEntityIPage = page.setRecords(collect);
+
         return new PageUtils(orderEntityIPage);
     }
 
@@ -143,9 +147,10 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         // 交易号
         payVo.setOut_trade_no(orderEntity.getOrderSn());
         // 交易标题
-        List<OrderItemEntity> order_sn = orderItemService.list(new QueryWrapper<OrderItemEntity>().eq("order_sn", orderSn));
-        OrderItemEntity itemEntity = order_sn.get(0);
-        payVo.setSubject(itemEntity.getSkuName());
+//        List<OrderItemEntity> order_sn = orderItemService.list(new QueryWrapper<OrderItemEntity>().eq("order_sn", orderSn));
+//        OrderItemEntity itemEntity = order_sn.get(0);
+//        payVo.setSubject(itemEntity.getSkuName());
+        payVo.setSubject("宏飞商城购物");
         // 交易备注
         payVo.setBody("宏飞商城购物");
         return payVo;
