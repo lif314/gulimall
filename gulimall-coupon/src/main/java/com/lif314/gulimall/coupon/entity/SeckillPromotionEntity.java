@@ -5,11 +5,13 @@ import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.io.Serializable;
 import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 /**
  * 秒杀活动
- * 
+ *
  * @author lif314
  * @email lifer314@163.com
  * @date 2022-02-07 22:09:09
@@ -43,6 +45,7 @@ public class SeckillPromotionEntity implements Serializable {
 	/**
 	 * 创建时间
 	 */
+	@JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
 	private Date createTime;
 	/**
 	 * 创建人

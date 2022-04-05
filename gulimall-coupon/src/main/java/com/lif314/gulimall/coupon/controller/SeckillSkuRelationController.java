@@ -33,6 +33,8 @@ public class SeckillSkuRelationController {
 
     /**
      * 列表
+     *
+     *?t=1648957478568&page=1&limit=10&key=121&promotionSessionId=1
      */
     @RequestMapping("/list")
     //@RequiresPermissions("coupon:seckillskurelation:list")

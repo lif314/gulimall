@@ -5,11 +5,13 @@ import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.io.Serializable;
 import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 /**
  * 秒杀商品通知订阅
- * 
+ *
  * @author lif314
  * @email lifer314@163.com
  * @date 2022-02-07 22:09:08

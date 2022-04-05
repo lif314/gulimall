@@ -14,6 +14,7 @@
         <module name="gulimall-order" />
         <module name="gulimall-gateway" />
         <module name="gulimall-test-sso-client2" />
+        <module name="gulimall-seckill" />
         <module name="gulimall-product" />
         <module name="renren-generator" />
         <module name="gulimall-third-party" />
@@ -36,6 +37,7 @@
       <module name="gulimall-order" options="-parameters" />
       <module name="gulimall-product" options="-parameters" />
       <module name="gulimall-search" options="-parameters" />
+      <module name="gulimall-seckill" options="-parameters" />
       <module name="gulimall-test-sso-client" options="-parameters" />
       <module name="gulimall-test-sso-client2" options="-parameters" />
       <module name="gulimall-test-sso-server" options="-parameters" />
