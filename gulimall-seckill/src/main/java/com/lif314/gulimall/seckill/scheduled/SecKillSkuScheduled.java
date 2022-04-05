@@ -24,7 +24,7 @@ public class SecKillSkuScheduled {
 
     @Scheduled(cron = "0 0 3 * * ?")
     public void updateSecKillSkuLatest3Days(){
-        // TODO 重复上架无需处理
+        // TODO 重复上架无需处理(×) --> 接口幂等性
         secKillService.updateSecKillSkuLatest3Days();
 
     }
