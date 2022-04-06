@@ -12,4 +12,7 @@ public class SecKillConstant {
 
     // 上架秒杀商品幂等性保证--分布式锁
     public static final String SECKILL_UPLOAD_LOCK = "seckill:upload:lock";
+
+    // 秒杀用户商品数量限制 -- 幂等性
+    public static final String USER_SECKILL_LIMIT = "seckill:user:";
 }

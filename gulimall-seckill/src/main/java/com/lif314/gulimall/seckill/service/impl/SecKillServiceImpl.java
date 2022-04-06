@@ -167,7 +167,7 @@ public class SecKillServiceImpl implements SecKillService {
                         // 4、校验该用户是否已经买过了
                         // 幂等性处理：redis占位 userId_sessionId_skuId
                         MemberRespTo memberRespTo = LoginUserInterceptor.loginUser.get();
-                        String userKey = memberRespTo.getId() + "_" + redisTo.getPromotionSessionId() + "_" + redisTo.getSkuId();
+                        String userKey = SecKillConstant.USER_SECKILL_LIMIT + memberRespTo.getId() + "_" + redisTo.getPromotionSessionId() + "_" + redisTo.getSkuId();
                         long ttl = endTime - time; // 超时时间 milliseconds
                         Boolean ifAbsent = redisTemplate.opsForValue().setIfAbsent(userKey, num.toString(), ttl, TimeUnit.MILLISECONDS);// 不存在才占位,超时时间为场次结束时间
                         if (ifAbsent) {
