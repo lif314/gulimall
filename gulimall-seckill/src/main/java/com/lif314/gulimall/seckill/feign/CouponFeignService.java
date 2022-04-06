@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 @FeignClient("gulimall-coupon")
 public interface CouponFeignService {
 
-
     /**
      * 获取三天内的秒杀信息
      */

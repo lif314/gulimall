@@ -60,16 +60,13 @@ public class SeckillSessionServiceImpl extends ServiceImpl<SeckillSessionDao, Se
 
         // 4、查询活动场次中的所有商品信息
         if(list != null && list.size() > 0){
-
             return list.stream().map((session) -> {
                 List<SeckillSkuRelationEntity> promotionSession = seckillSkuRelationService.list(new QueryWrapper<SeckillSkuRelationEntity>().eq("promotion_session_id", session.getId()));
                 session.setRelationSkus(promotionSession);
-                Long id = session.getId();
                 return session;
             }).collect(Collectors.toList());
         }
         return null;
-
     }
 
 }

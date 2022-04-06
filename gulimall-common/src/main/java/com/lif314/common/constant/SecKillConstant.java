@@ -9,4 +9,7 @@ public class SecKillConstant {
 
     // 秒杀库存处理信号量
     public static final String SKU_STOCK_SEMAPHORE = "seckill:stock:"; // + 随机码
+
+    // 上架秒杀商品幂等性保证--分布式锁
+    public static final String SECKILL_UPLOAD_LOCK = "seckill:upload:lock";
 }
