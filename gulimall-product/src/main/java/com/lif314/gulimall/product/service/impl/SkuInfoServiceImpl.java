@@ -1,7 +1,12 @@
 package com.lif314.gulimall.product.service.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
+import com.lif314.common.utils.R;
 import com.lif314.gulimall.product.entity.*;
+import com.lif314.gulimall.product.feign.SeckillFeignService;
 import com.lif314.gulimall.product.service.*;
+import com.lif314.gulimall.product.to.SecKillSkuRedisTo;
 import com.lif314.gulimall.product.vo.CartItemPriceMapVo;
 import com.lif314.gulimall.product.vo.SkuItemSaleAttrVo;
 import com.lif314.gulimall.product.vo.SkuItemVo;
@@ -45,6 +50,10 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
 
     @Autowired
     ThreadPoolExecutor executor;
+
+
+    @Autowired
+    SeckillFeignService seckillFeignService;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -182,9 +191,21 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
             skuItemVo.setImages(images);
         }, executor);
 
+        // 查询当前商品的秒杀信息
+        CompletableFuture<Void> seckillInfoFuture = CompletableFuture.runAsync(() -> {
+            R r = seckillFeignService.getSeckillInfoBySkuId(skuId);
+            if (r.getCode() == 0) {
+                Object data = r.get("data");
+                String s = JSON.toJSONString(data);
+                SecKillSkuRedisTo secKillSkuRedisTo = JSON.parseObject(s, new TypeReference<SecKillSkuRedisTo>() {
+                });
+                skuItemVo.setSeckillInfo(secKillSkuRedisTo);
+            }
+        }, executor);
+
         // 等待所有任务都完成
         try {
-            CompletableFuture.allOf(saleAttrFuture, descFuture, baseAttrFuture, imageFuture).get();
+            CompletableFuture.allOf(saleAttrFuture, descFuture, baseAttrFuture, imageFuture, seckillInfoFuture).get();
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {

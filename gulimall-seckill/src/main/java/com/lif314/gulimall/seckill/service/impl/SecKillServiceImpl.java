@@ -10,7 +10,7 @@ import com.lif314.gulimall.seckill.feign.ProductFeignService;
 import com.lif314.gulimall.seckill.service.SecKillService;
 import com.lif314.gulimall.seckill.to.SecKillSkuRedisTo;
 import com.lif314.gulimall.seckill.vo.SeckillSessionVo;
-import com.lif314.gulimall.seckill.vo.SkuInfoVo;
+import com.lif314.gulimall.seckill.to.SkuInfoTo;
 import org.redisson.api.RSemaphore;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
@@ -19,8 +19,8 @@ import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 
@@ -59,6 +59,71 @@ public class SecKillServiceImpl implements SecKillService {
             // 3、缓存活动的关联信息
             saveRelationSkusInfos(seckillSessionVos);
         }
+    }
+
+    /**
+     * 获取当前参与秒杀的商品信息
+     */
+    @Override
+    public List<SecKillSkuRedisTo> getCurrentSecKillSkus() {
+        // 1、确定当前时间是哪个场次
+        long time = new Date().getTime();
+        // 获取所有的场次信息
+        Set<String> keys = redisTemplate.keys(SecKillConstant.SESSION_CACHE_PREFIX + "*");
+        for (String key : keys) {
+            String replace = key.replace(SecKillConstant.SESSION_CACHE_PREFIX, "");
+            String[] s = key.split("_");
+            long start = Long.parseLong(s[0]);
+            long end = Long.parseLong(s[1]);
+            if(time >= start && time < end){
+                // 2、获取场次下的秒杀商品
+                List<String> range = redisTemplate.opsForList().range(key, 0, -1);// 获取该key关联的所有信息
+                BoundHashOperations<String, String, String> hashOps = redisTemplate.boundHashOps(SecKillConstant.SKUKILL_CACHE_PREFIX);
+                List<String> list = hashOps.multiGet(range);
+                if(list != null){
+                    return list.stream().map((item) -> {
+                        // 商品正在秒杀，需要随机码
+                        return JSON.parseObject(item.toString(), SecKillSkuRedisTo.class);
+                    }).collect(Collectors.toList());
+                }
+                break;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 查询商品的秒杀信息
+     */
+    @Override
+    public SecKillSkuRedisTo getSkuSeckillInfo(Long skuId) {
+
+        BoundHashOperations<String, String, String> hashOps = redisTemplate.boundHashOps(SecKillConstant.SKUKILL_CACHE_PREFIX);
+        // 所有参与秒杀的商品key信息
+        Set<String> keys = hashOps.keys();
+        if(keys != null && keys.size() > 0){
+            String regx = "\\d_" + skuId;
+            for (String key : keys) {
+                // 6_4
+                if(Pattern.matches(regx, key)){
+                    String s = hashOps.get(key);
+                    SecKillSkuRedisTo redisTo = JSON.parseObject(s, SecKillSkuRedisTo.class);
+                    // 商品详情数据设为null，用不到
+                    redisTo.setSkuInfoTo(null);
+                    // 不能直接返回随机码
+                    long time = new Date().getTime();
+                    if(redisTo.getStartTime() <= time && time <= redisTo.getEndTime()){
+                        // 秒杀活动已经开始，可以返回随机码
+                        return redisTo;
+                    }else {
+                        // 此时不能返回商品随机码
+                        redisTo.setRandomCode(null);
+                        return redisTo;
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     // 缓存活动信息
@@ -101,9 +166,9 @@ public class SecKillServiceImpl implements SecKillService {
                    if(r.getCode() == 0){
                        Object skuInfo = r.get("skuInfo");
                        String s = JSON.toJSONString(skuInfo);
-                       SkuInfoVo skuInfoVo = JSON.parseObject(s, new TypeReference<SkuInfoVo>() {
+                       SkuInfoTo skuInfoVo = JSON.parseObject(s, new TypeReference<SkuInfoTo>() {
                        });
-                       redisTo.setSkuInfoVo(skuInfoVo);
+                       redisTo.setSkuInfoTo(skuInfoVo);
                    }
                    // 3、当前商品的开始时间和结束时间
                    redisTo.setStartTime(session.getStartTime().getTime());

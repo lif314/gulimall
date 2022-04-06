@@ -9,6 +9,7 @@ spring:
             - Path=/api/product/**
           filters:
             - RewritePath=/api/(?<segment>.*),/$\{segment}
+        # 第三方服务
         - id: third_party_route
           uri: lb://gulimall-third-party
           predicates:
@@ -34,6 +35,13 @@ spring:
           uri: lb://gulimall-ware
           predicates:
             - Path=/api/ware/**
+          filters:
+            - RewritePath=/api/(?<segment>/?.*),/$\{segment}
+        # 秒杀服务
+        - id: seckill_route
+          uri: lb://gulimall-seckill
+          predicates:
+            - Path=/api/seckill/**
           filters:
             - RewritePath=/api/(?<segment>/?.*),/$\{segment}
         # renren-fast
@@ -68,6 +76,11 @@ spring:
           uri: lb://gulimall-order
           predicates:
             - Host=order.feihong.com
+        # seckill.feihong.com
+        - id: gulimall_seckill_route
+          uri: lb://gulimall-seckill
+          predicates:
+            - Host=seckill.feihong.com
 
 #  现在的验证码请求路径为，http://localhost:88/api/captcha.jpg?uuid=69c79f02-d15b-478a-8465-a07fd09001e6
 #  原始的验证码请求路径：http://localhost:8001/renren-fast/captcha.jpg?uuid=69c79f02-d15b-478a-8465-a07fd09001e6

@@ -523,8 +523,15 @@
                             <!-- 价格格式化-->
                             <span th:text="${#numbers.formatDecimal(item.info.price,3,2)}">4499.00</span>
                         </li>
-                        <li>
-                            预约享资格
+                        <li style="color: red" th:if="${item.seckillInfo != null}">
+
+                            <span th:if="${#dates.createNow().getTime() < item.seckillInfo.startTime}">
+                                商品将会在[[${#dates.format(new java.util.Date(item.seckillSku.startTime),"yyyy-MM-dd HH:mm:ss")}]]进行秒杀
+                            </span>
+
+                            <span th:if="${#dates.createNow().getTime() >= item.seckillInfo.startTime && #dates.createNow().getTime() <= item.seckillInfo.endTime}">
+                                秒杀价: [[${#numbers.formatDecimal(item.seckillInfo.seckillPrice,1,2)}]]
+                            </span>
                         </li>
                         <li>
                             <a href="/static/item/">
@@ -1278,6 +1285,20 @@
         var skuId = $(this).attr("skuId");
         location.href = "http://cart.feihong.com/addToCart?skuId=" +skuId +"&num="+num;
         // 禁用默认行为
+        return false;
+    });
+
+
+    $(".seckill").click(function () {
+        var isLogin = [[${session.loginUser != null}]];     //true
+        if (isLogin) {
+            var killId = $(this).attr("sessionid") + "_" + $(this).attr("skuid");
+            var code = $(this).attr("code");
+            var num = $("#productNum").val();
+            location.href = "http://seckill.feihong.com/kill?killId=" + killId + "&key=" + code + "&num=" + num;
+        } else {
+            alert("秒杀请先登录");
+        }
         return false;
     });
 

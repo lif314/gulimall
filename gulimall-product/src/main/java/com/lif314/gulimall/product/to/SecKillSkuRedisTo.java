@@ -1,4 +1,4 @@
-package com.lif314.gulimall.seckill.to;
+package com.lif314.gulimall.product.to;
 
 import lombok.Data;
 

@@ -3,6 +3,7 @@ package com.lif314.gulimall.product.vo;
 import com.lif314.gulimall.product.entity.SkuImagesEntity;
 import com.lif314.gulimall.product.entity.SkuInfoEntity;
 import com.lif314.gulimall.product.entity.SpuInfoDescEntity;
+import com.lif314.gulimall.product.to.SecKillSkuRedisTo;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -41,4 +42,7 @@ public class SkuItemVo {
 
     //5、spu规格参数信息(规格与包装)（pms_attr）【以组为单位】销售属性对应的值情况
     private List<SpuItemAttrGroupVo> groupAttrs;
+
+    // 6、商品秒杀信息
+    private SecKillSkuRedisTo seckillInfo;
 }

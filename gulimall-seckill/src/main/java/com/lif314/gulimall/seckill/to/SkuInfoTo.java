@@ -1,11 +1,11 @@
-package com.lif314.gulimall.seckill.vo;
+package com.lif314.gulimall.seckill.to;
 
 import lombok.Data;
 
 import java.math.BigDecimal;
 
 @Data
-public class SkuInfoVo {
+public class SkuInfoTo {
 
     private Long skuId;
     /**
