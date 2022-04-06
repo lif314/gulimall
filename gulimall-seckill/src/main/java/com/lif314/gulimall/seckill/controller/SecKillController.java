@@ -4,13 +4,13 @@ import com.lif314.common.utils.R;
 import com.lif314.gulimall.seckill.service.SecKillService;
 import com.lif314.gulimall.seckill.to.SecKillSkuRedisTo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController
+@Controller
 public class SecKillController {
 
     @Autowired
@@ -18,6 +18,7 @@ public class SecKillController {
     /**
      * 查询当前时间可以参与的秒杀商品信息
      */
+    @ResponseBody
     @GetMapping("/currentSecKillSkus")
     public R getCurrentSecKillSkus(){
         List<SecKillSkuRedisTo> redisToList =  secKillService.getCurrentSecKillSkus();
@@ -28,6 +29,7 @@ public class SecKillController {
     /**
      * 查询某商品的秒杀信息
      */
+    @ResponseBody
     @GetMapping("/seckill/seckillInfo/{skuId}")
     public R getSeckillInfoBySkuId(@PathVariable("skuId") Long skuId){
         SecKillSkuRedisTo data = secKillService.getSkuSeckillInfo(skuId);
@@ -35,4 +37,23 @@ public class SecKillController {
     }
 
 
+    /**
+     * 处理秒杀请求
+     *  http://seckill.feihong.com/seckill?killId=" + killId + "&key=" + code + "&num=" + num;
+     */
+    // TODO 细化功能：1、上架秒杀商品每个商品设置过期时间； 2、秒杀结束后的流程
+    @GetMapping("/kill")
+    public String secKill(@RequestParam("killId") String killId,
+                     @RequestParam("key") String randomCode,
+                     @RequestParam("num") Integer num, Model model) {
+        // 1、判断是否登录 -- 使用拦截器机制
+        String orderSn = secKillService.kill(killId, randomCode, num);
+        if(orderSn!=null){
+            // 秒杀成功
+            model.addAttribute("orderSn", orderSn);
+            return "successs";
+        }
+
+        return "error";
+    }
 }

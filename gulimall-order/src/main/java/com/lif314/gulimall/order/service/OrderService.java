@@ -1,6 +1,7 @@
 package com.lif314.gulimall.order.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.lif314.common.to.mq.SeckillOrderTo;
 import com.lif314.common.utils.PageUtils;
 import com.lif314.gulimall.order.entity.OrderEntity;
 import com.lif314.gulimall.order.vo.*;
@@ -34,5 +35,7 @@ public interface OrderService extends IService<OrderEntity> {
     String handlePayResult(PayAsyncVo vo);
 
     void updateOrderStatus(String orderSn);
+
+    void cereateSeckillOrder(SeckillOrderTo seckillOrder);
 }
 

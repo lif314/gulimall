@@ -11,4 +11,6 @@ public interface SecKillService {
     List<SecKillSkuRedisTo> getCurrentSecKillSkus();
 
     SecKillSkuRedisTo getSkuSeckillInfo(Long skuId);
+
+    String kill(String killId, String randomCode, Integer num);
 }

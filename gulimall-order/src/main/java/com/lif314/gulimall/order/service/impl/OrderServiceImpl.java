@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lif314.common.constant.OrderConstant;
 import com.lif314.common.exception.NoStockException;
 import com.lif314.common.to.MemberRespTo;
+import com.lif314.common.to.mq.SeckillOrderTo;
 import com.lif314.common.utils.PageUtils;
 import com.lif314.common.utils.Query;
 import com.lif314.common.utils.R;
@@ -135,6 +136,35 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
     @Override
     public void updateOrderStatus(String orderSn) {
         this.baseMapper.updateOrderStatus(orderSn, OrderConstant.OrderStatusEnum.PAYED.getCode());
+    }
+
+    /**
+     * 创建秒杀订单
+     */
+    @Override
+    public void cereateSeckillOrder(SeckillOrderTo seckillOrder) {
+        // TODO 保存订单信息
+        OrderEntity orderEntity = new OrderEntity();
+        orderEntity.setOrderSn(seckillOrder.getOrderSn());
+        orderEntity.setMemberId(seckillOrder.getMemberId());
+
+        orderEntity.setStatus(OrderConstant.OrderStatusEnum.CREATE_NEW.getCode());
+
+        BigDecimal totalPrice = seckillOrder.getSeckillPrice().multiply(new BigDecimal(seckillOrder.getNum().toString()));
+        orderEntity.setPayAmount(totalPrice);
+
+        // TODO 收获信息
+        this.save(orderEntity);
+
+
+        // TODO 保存订单项信息  远程调用进行设置
+        OrderItemEntity orderItem = new OrderItemEntity();
+        orderItem.setOrderSn(seckillOrder.getOrderSn());
+        orderItem.setSkuId(seckillOrder.getSkuId());
+        orderItem.setRealAmount(totalPrice);
+        orderItem.setSkuQuantity(seckillOrder.getNum());
+
+        orderItemService.save(orderItem);
     }
 
 

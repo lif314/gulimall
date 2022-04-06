@@ -617,17 +617,36 @@
   }
 
 //  查询秒杀商品
-  $.get("http://seckill.feihong.com//currentSecKillSkus", function (resp){
+  $.get("http://seckill.feihong.com/currentSecKillSkus", function (resp){
     if(resp.data.length > 0){
       resp.data.forEach(function (item){
         $("<li onclick='to_href(" + item.skuId + ")'></li>")
-          .append($("<img style='width: 130px; height: 130px' src='" + item.skuInfo.skuDefaultImg + "'/>"))
-          .append($("<p>" + item.skuInfo.skuTitle + "</p>"))
+          .append($("<img style='width: 130px; height: 130px' src='" + item.skuInfoTo.skuDefaultImg + "'/>"))
+          .append($("<p>" + item.skuInfoTo.skuTitle + "</p>"))
           .append($("<span>" + item.seckillPrice + "</span>"))
-          .append($("<s>" + item.skuInfo.price + "</s>"))
+          .append($("<s> " + item.skuInfoTo.price + "</s>"))
           .appendTo("#seckillSkuInfo");
       });
+
     }
+
+    /**
+     *  $.get("http://seckill.gulimall.com/getCurrentSeckillSkus", function (res) {
+      if (res.data.length > 0) {
+          res.data.forEach(function (item) {
+              $("<li onclick='toDetail(" + item.skuId + ")'></li>").append($("<img style='width: 130px; height: 130px' src='" + item.skuInfo.skuDefaultImg + "' />"))
+                  .append($("<p>"+item.skuInfo.skuTitle+"</p>"))
+                  .append($("<span>" + item.seckillPrice + "</span>"))
+                  .append($("<s>" + item.skuInfo.price + "</s>"))
+                  .appendTo("#seckillSkuContent");
+          })
+      }
+  })
+
+     function toDetail(skuId) {
+      location.href = "http://item.gulimall.com/" + skuId + ".html";
+  }
+     */
 
     /**
      <li>

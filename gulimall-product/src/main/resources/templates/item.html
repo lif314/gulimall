@@ -526,7 +526,7 @@
                         <li style="color: red" th:if="${item.seckillInfo != null}">
 
                             <span th:if="${#dates.createNow().getTime() < item.seckillInfo.startTime}">
-                                商品将会在[[${#dates.format(new java.util.Date(item.seckillSku.startTime),"yyyy-MM-dd HH:mm:ss")}]]进行秒杀
+                                商品将会在[[${#dates.format(new java.util.Date(item.seckillInfo.startTime),"yyyy-MM-dd HH:mm:ss")}]]进行秒杀
                             </span>
 
                             <span th:if="${#dates.createNow().getTime() >= item.seckillInfo.startTime && #dates.createNow().getTime() <= item.seckillInfo.endTime}">
@@ -648,7 +648,12 @@
 
                         </div>
                     </div>
-                    <div class="box-btns-two">
+                    <div class="box-btns-two" th:if="${item.seckillInfo!=null && (#dates.createNow().getTime() >= item.seckillInfo.startTime && #dates.createNow().getTime() <= item.seckillInfo.endTime)}">
+                        <a href="#" id="secKillA" th:attr="skuId=${item.info.skuId}, sessionId=${item.seckillInfo.promotionSessionId}, code=${item.seckillInfo.randomCode}">
+                            立即抢购
+                        </a>
+                    </div>
+                    <div class="box-btns-two" th:if="${item.seckillInfo==null || (#dates.createNow().getTime() < item.seckillInfo.startTime || #dates.createNow().getTime() >= item.seckillInfo.endTime)}">
                         <a href="#" id="addToCartA" th:attr="skuId=${item.info.skuId}">
                             加入购物车
                         </a>
@@ -1289,12 +1294,15 @@
     });
 
 
-    $(".seckill").click(function () {
+
+    // 立即抢购：skuId， sessionId, code
+    $("#secKillA").click(function () {
+        // 登录限流
         var isLogin = [[${session.loginUser != null}]];     //true
         if (isLogin) {
-            var killId = $(this).attr("sessionid") + "_" + $(this).attr("skuid");
-            var code = $(this).attr("code");
-            var num = $("#productNum").val();
+            var killId = $(this).attr("sessionId") + "_" + $(this).attr("skuId");
+            var code = $(this).attr("code"); // 随机码
+            var num = $("#numInput").val();
             location.href = "http://seckill.feihong.com/kill?killId=" + killId + "&key=" + code + "&num=" + num;
         } else {
             alert("秒杀请先登录");
